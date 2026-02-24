@@ -19,3 +19,10 @@ class Appointment(CommonBaseMixin, Base):
     status: Mapped[AppointmentStatus] = mapped_column(
         String(50), default=AppointmentStatus.SCHEDULED.value
     )
+
+    client: Mapped["Client"] = relationship(
+        "Client", back_populates="appointments"
+    )
+    service: Mapped["Service"] = relationship(
+        "Service", back_populates="appointments"
+    )

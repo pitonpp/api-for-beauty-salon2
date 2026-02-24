@@ -3,6 +3,9 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.schemas.client import ClientShort
+from app.schemas.service import ServiceShort
+
 
 TIME_EXAMPLE = (
     (datetime.now() + timedelta(hours=1))
@@ -52,3 +55,11 @@ class AppointmentUpdate(BaseModel):
 class AppointmentInDB(AppointmentBase):
     id: int
     status: str
+
+
+class AppointmentWithRelations(BaseModel):
+    id: int
+    appointment_time: datetime
+    status: str
+    client: ClientShort
+    service: ServiceShort

@@ -23,3 +23,9 @@ class ClientDB(ClientBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ClientShort(BaseModel):
+    id: int
+    name: str
+    phone: str

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from sqlalchemy import Interval, String, Integer, DateTime
+from sqlalchemy import Interval, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonBaseMixin

@@ -27,3 +27,9 @@ class ServiceUpdate(ServiceBase):
 class ServiceDB(ServiceBase):
     id: int
     appointments: Optional[list[AppointmentInDB]] = None
+
+
+class ServiceShort(BaseModel):
+    id: int
+    name = str
+    price = PositiveInt
