@@ -31,5 +31,5 @@ class ServiceDB(ServiceBase):
 
 class ServiceShort(BaseModel):
     id: int
-    name = str
-    price = PositiveInt
+    name: str
+    price: PositiveInt

@@ -14,11 +14,11 @@ TIME_EXAMPLE = (
 )
 
 
-def validate_future(value: datetime) -> datetime:
+def validate_future(value: Optional[datetime]) -> Optional[datetime]:
     if value is None:
         return value
 
-    if value < datetime.now():
+    if value <= datetime.now():
         raise ValueError("Запись должна быть в будущем времени")
     return value
 

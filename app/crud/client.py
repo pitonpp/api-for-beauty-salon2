@@ -8,7 +8,7 @@ from app.models.client import Client
 
 
 class CRUDClient(CRUDBase):
-    async def get_client_by_phone(
+    async def get_by_phone(
         self, phone: str, session: AsyncSession
     ) -> Optional[Client]:
         client = await session.execute(

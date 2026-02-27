@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer
+from sqlalchemy import Integer
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )

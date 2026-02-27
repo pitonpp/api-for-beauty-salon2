@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import List
 
-from sqlalchemy import ForeignKey, Integer, String, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Enum, ForeignKey, Integer, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonBaseMixin
 from app.schemas.status_enum import AppointmentStatus
@@ -17,7 +16,7 @@ class Appointment(CommonBaseMixin, Base):
     )
     appointment_time: Mapped[datetime] = mapped_column(DateTime)
     status: Mapped[AppointmentStatus] = mapped_column(
-        String(50), default=AppointmentStatus.SCHEDULED.value
+        Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED.value
     )
 
     client: Mapped["Client"] = relationship(
