@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from fastapi import APIRouter
 
 from app.crud.service import service_crud
@@ -9,7 +11,7 @@ router = APIRouter()
 
 @router.get(
     "/",
-    response_model=List[ServiceDB],
+    response_model=list[ServiceDB],
     summary="Получить список услуг",
 )
 async def get_services(session: SessionDI):
@@ -21,6 +23,7 @@ async def get_services(session: SessionDI):
     "/",
     response_model=ServiceDB,
     summary="Создать новую услугу",
+    status_code=HTTPStatus.CREATED,
 )
 async def create_service(service: ServiceCreate, session: SessionDI):
     await check_name_service(service.name, session)
@@ -30,7 +33,7 @@ async def create_service(service: ServiceCreate, session: SessionDI):
 
 @router.patch(
     "/{service_id}",
-    response_model="ServiceDB",
+    response_model=ServiceDB,
     summary="Обновить данные услуги",
 )
 async def update_service(

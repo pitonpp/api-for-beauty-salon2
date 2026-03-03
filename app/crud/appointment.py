@@ -39,5 +39,12 @@ class CRUDAppointment(CRUDBase):
         result = await session.execute(stmt)
         return result.scalars().all()
 
+    async def create_appointment(self, session: AsyncSession, request_data):
+        db_obj = Appointment(**request_data)
+        session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
+        return db_obj
+
 
 crud_appointment = CRUDAppointment(Appointment)

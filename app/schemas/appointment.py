@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.client import ClientShort
 from app.schemas.service import ServiceShort
+from app.schemas.status_enum import AppointmentStatus
 
 
 TIME_EXAMPLE = (
@@ -27,8 +28,6 @@ class AppointmentBase(BaseModel):
     appointment_time: datetime = Field(
         ..., description="Время записи", examples=[TIME_EXAMPLE]
     )
-    client_id: int
-    service_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -49,11 +48,20 @@ class AppointmentUpdate(BaseModel):
     def check_future(cls, value):
         return validate_future(value)
 
+    @field_validator("status")
+    def check_status(cls, value):
+        if value is not None:
+            if value not in AppointmentStatus:
+                raise ValueError("Недопустимое значение статуса")
+        return value
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AppointmentInDB(AppointmentBase):
     id: int
+    client_id: int
+    service_id: int
     status: str
 
 

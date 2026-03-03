@@ -3,8 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
-from app.schemas.appointment import AppointmentInDB
-
 
 class ServiceBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -26,7 +24,6 @@ class ServiceUpdate(ServiceBase):
 
 class ServiceDB(ServiceBase):
     id: int
-    appointments: Optional[list[AppointmentInDB]] = None
 
 
 class ServiceShort(BaseModel):

@@ -1,14 +1,18 @@
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import Annotated
 
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, Depends
 
 from app.core.db import get_async_session
-from app.crud.client import client_crud
-from app.crud.service import service_crud
+from app.crud import client_crud, service_crud, crud_appointment
+from app.models.appointment import Appointment
 from app.models.client import Client
 from app.models.service import Service
+from app.models.appointment import Appointment
+from app.schemas.status_enum import AppointmentStatus
 
 
 SessionDI = Annotated[AsyncSession, Depends(get_async_session)]
@@ -56,3 +60,36 @@ async def valid_service_id(service_id: int, session: SessionDI) -> Service:
 
 
 ValidServiceDI = Annotated[Service, Depends(valid_service_id)]
+
+
+async def check_time_availiable(
+    appointment_time: datetime, session: SessionDI, duration: timedelta
+) -> None:
+    end_time = appointment_time + duration
+    stmt = select(Appointment).where(
+        and_(
+            Appointment.appointment_time < end_time,
+            Appointment.appointment_time + duration > appointment_time,
+            Appointment.status == "Запланированная",
+        )
+    )
+    result = await session.execute(stmt)
+    if not result:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT, detail="Время записи занято"
+        )
+
+
+async def valid_appointment_id(
+    appointment_id: int, session: SessionDI
+) -> Appointment:
+    appointment = await crud_appointment.get(appointment_id, session)
+    if not appointment:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=f"Запись с ID {appointment_id} не найдена",
+        )
+    return appointment
+
+
+ValidAppointmentDI = Annotated[Appointment, Depends(valid_appointment_id)]

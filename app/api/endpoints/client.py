@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-# from app.api.validators import check_client_exists, check_phone_duplicate
-from app.crud.client import client_crud
-from app.schemas.client import ClientCreate, ClientUpdate, ClientDB
 from app.api.dependencies import SessionDI, ValidClientDI, check_unique_phone
+
+from app.crud.client import client_crud
+from app.schemas.client import ClientUpdate, ClientCreate, ClientDB
 
 router = APIRouter()
 
