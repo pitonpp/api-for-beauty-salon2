@@ -25,7 +25,7 @@ class CommonBaseMixin:
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
 
-engine = create_async_engine(settings.database_url)
+engine = create_async_engine(settings.database_url, echo=True)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 

@@ -1,4 +1,5 @@
 from typing import Optional
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,6 +10,13 @@ class Settings(BaseSettings):
     db_password: str
     db_name: str
     secret: str
+
+    SECRET_KEY: str = Field(
+        default="Some_secret)",
+        description="Секретный ключ для генерации JWT токена",
+    )
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     model_config = SettingsConfigDict(env_file=".env")
 

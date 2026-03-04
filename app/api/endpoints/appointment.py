@@ -9,12 +9,10 @@ from app.schemas.appointment import (
 )
 from app.api.dependencies import (
     SessionDI,
-    ValidClientDI,
-    ValidServiceDI,
-    check_time_availiable,
-    ValidAppointmentDI,
     valid_client_id,
     valid_service_id,
+    check_time_availiable,
+    valid_appointment_id,
 )
 
 router = APIRouter()
@@ -30,15 +28,27 @@ async def get_appointments(session: SessionDI):
     return appointments
 
 
+@router.get(
+    "/",
+    response_model=AppointmentWithRelations,
+    summary="Получить полные записи на услуги",
+)
+async def get_appointments_with_relations(session: SessionDI):
+    appointments = await crud_appointment.get_multi_with_relations(session)
+    return appointments
+
+
 @router.post(
     "/", response_model=AppointmentInDB, summary="Создать запись на услугу"
 )
 async def create_appointment(
     appointment: AppointmentCreate,
     session: SessionDI,
-    client: ValidClientDI,
-    service: ValidServiceDI,
+    client_id: int,
+    service_id: int,
 ):
+    service = await valid_service_id(service_id, session)
+    client = await valid_client_id(client_id, session)
     await check_time_availiable(
         appointment.appointment_time, session, service.duration
     )
@@ -57,13 +67,17 @@ async def create_appointment(
     summary="Изменить запись на услугу",
 )
 async def update_appointment(
-    appointment: ValidAppointmentDI,
+    appointment_id: int,
     obj_in: AppointmentUpdate,
     session: SessionDI,
 ):
+    appointment = await valid_appointment_id(appointment_id, session)
+    service_id = appointment.service_id
+    service = await valid_service_id(service_id, session)
+
     if obj_in.appointment_time:
         await check_time_availiable(
-            obj_in.appointment_time, session, appointment.service.duration
+            obj_in.appointment_time, session, service.duration
         )
 
     if obj_in.client_id:
@@ -84,8 +98,9 @@ async def update_appointment(
     summary="Удалить запись на услугу",
 )
 async def delete_appointment(
-    appointment: ValidAppointmentDI,
+    appointment_id: int,
     session: SessionDI,
 ):
+    appointment = await valid_appointment_id(appointment_id, session)
     deleted_appointment = await crud_appointment.delete(appointment, session)
     return deleted_appointment

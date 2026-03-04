@@ -1,15 +1,14 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.schemas.client import ClientShort
+from app.schemas.user import UserShort
 from app.schemas.service import ServiceShort
 from app.schemas.status_enum import AppointmentStatus
 
-
 TIME_EXAMPLE = (
-    (datetime.now() + timedelta(hours=1))
+    (datetime.now(timezone.utc) + timedelta(hours=1))
     .replace(second=0, microsecond=0)
     .isoformat(timespec="minutes")
 )
@@ -19,7 +18,7 @@ def validate_future(value: Optional[datetime]) -> Optional[datetime]:
     if value is None:
         return value
 
-    if value <= datetime.now():
+    if value <= datetime.now(timezone.utc):
         raise ValueError("Запись должна быть в будущем времени")
     return value
 
@@ -42,7 +41,7 @@ class AppointmentUpdate(BaseModel):
     appointment_time: Optional[datetime] = None
     client_id: Optional[int] = None
     service_id: Optional[int] = None
-    status: Optional[str] = None
+    status: Optional[AppointmentStatus] = AppointmentStatus.SCHEDULED
 
     @field_validator("appointment_time")
     def check_future(cls, value):
@@ -69,5 +68,5 @@ class AppointmentWithRelations(BaseModel):
     id: int
     appointment_time: datetime
     status: str
-    client: ClientShort
+    client: UserShort
     service: ServiceShort

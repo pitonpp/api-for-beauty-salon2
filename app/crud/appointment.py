@@ -24,7 +24,7 @@ class CRUDAppointment(CRUDBase):
         return result.scalar_one_or_none()
 
     async def get_multi_with_relations(
-        self, session: AsyncSession, skip: int = 0, limit: int = 100
+        self, session: AsyncSession, skip: int = 0, limit: int = 10
     ) -> list[Appointment]:
         stmt = (
             select(self.model)

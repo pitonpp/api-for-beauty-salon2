@@ -8,20 +8,20 @@ from app.schemas.status_enum import AppointmentStatus
 
 
 class Appointment(CommonBaseMixin, Base):
-    client_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("client.id"), nullable=False
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("user.id"), nullable=False
     )
     service_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("service.id"), nullable=False
     )
-    appointment_time: Mapped[datetime] = mapped_column(DateTime)
+    appointment_time: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True)
+    )
     status: Mapped[AppointmentStatus] = mapped_column(
         Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED.value
     )
 
-    client: Mapped["Client"] = relationship(
-        "Client", back_populates="appointments"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="appointments")
     service: Mapped["Service"] = relationship(
         "Service", back_populates="appointments"
     )

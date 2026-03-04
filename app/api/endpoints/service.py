@@ -4,7 +4,11 @@ from fastapi import APIRouter
 
 from app.crud.service import service_crud
 from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceDB
-from app.api.dependencies import SessionDI, ValidServiceDI, check_name_service
+from app.api.dependencies import (
+    SessionDI,
+    check_name_service,
+    valid_service_id,
+)
 
 router = APIRouter()
 
@@ -37,10 +41,12 @@ async def create_service(service: ServiceCreate, session: SessionDI):
     summary="Обновить данные услуги",
 )
 async def update_service(
-    service: ValidServiceDI,
+    service_id: int,
     obj_in: ServiceUpdate,
     session: SessionDI,
 ):
+    service = await valid_service_id(service_id, session)
+
     if obj_in.name is not None:
         await check_name_service(obj_in.name, session)
 
@@ -53,6 +59,7 @@ async def update_service(
     response_model=ServiceDB,
     summary="Удалить услугу",
 )
-async def delete_service(service: ValidServiceDI, session: SessionDI):
+async def delete_service(service_id: int, session: SessionDI):
+    service = await valid_service_id(service_id, session)
     service = await service_crud.delete(service, session)
     return service

@@ -36,7 +36,7 @@ class CRUDBase:
         obj_data = jsonable_encoder(db_obj)
         update_data = request.model_dump(exclude_unset=True)
         for field in obj_data:
-            if hasattr(update_data, field):
+            if field in update_data:
                 setattr(db_obj, field, update_data[field])
         session.add(db_obj)
         await session.commit()
