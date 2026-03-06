@@ -1,9 +1,7 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
-
-from app.schemas.status_enum import UserRole
 
 
 class UserCreate(BaseModel):
@@ -32,13 +30,12 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: Union[int, None] = None
-    phone: Union[str, None] = None
-    role: Union[str, None] = None
+    user_id: Optional[str] = None
+    phone: Optional[str] = None
+    role: Optional[str] = None
 
 
 class UserDB(BaseModel):
-    id: int
     phone: str
     name: str
     role: str
@@ -50,4 +47,10 @@ class UserDB(BaseModel):
 
 class UserUpdate(BaseModel):
     password: Optional[str] = None
+    phone: Optional[str] = None
     name: Optional[str] = None
+
+
+class UserShort(BaseModel):
+    phone: str
+    name: str

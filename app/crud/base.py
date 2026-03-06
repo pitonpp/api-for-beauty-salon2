@@ -14,7 +14,7 @@ class CRUDBase:
         return db_obj.scalar_one_or_none()
 
     async def get_multi(
-        self, session: AsyncSession, skip: int = 0, limit: int = 100
+        self, session: AsyncSession, skip: int = 0, limit: int = 10
     ):
         db_objs = await session.execute(
             select(self.model)

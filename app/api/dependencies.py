@@ -3,38 +3,39 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
+from app.core.jwt_services import verify_token
 from app.crud import crud_appointment, service_crud, user_crud
 from app.models.appointment import Appointment
-from app.models.client import Client
 from app.models.service import Service
-from app.schemas.status_enum import AppointmentStatus
+from app.models.user import User
+from app.schemas.status_enum import UserRole
 
 SessionDI = Annotated[AsyncSession, Depends(get_async_session)]
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-async def valid_client_id(client_id: int, session: SessionDI) -> Client:
-    client = await user_crud.get(client_id, session)
-    if not client:
+
+async def valid_user_id(user_id: int, session: SessionDI) -> User:
+    user = await user_crud.get(user_id, session)
+    if not user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail=f"Клиент c {client_id} не найден",
+            detail=f"Пользователь c {user_id} не найден",
         )
-    return client
-
-
-# ValidClientDI = Annotated[Client, Depends(valid_client_id)]
+    return user
 
 
 async def check_unique_phone(phone: str, session: SessionDI) -> None:
-    client = await user_crud.get_by_phone(phone, session)
-    if client:
+    user = await user_crud.get_by_phone(session, phone)
+    if user:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=f"Клиент с таким телефоном {phone} уже существует",
+            detail=f"Пользователь с таким телефоном {phone} уже существует",
         )
 
 
@@ -55,9 +56,6 @@ async def valid_service_id(service_id: int, session: SessionDI) -> Service:
             detail=f"Услуга с ID {service_id} не найдена",
         )
     return service
-
-
-# ValidServiceDI = Annotated[Service, Depends(valid_service_id)]
 
 
 async def check_time_availiable(
@@ -90,4 +88,39 @@ async def valid_appointment_id(
     return appointment
 
 
-# ValidAppointmentDI = Annotated[Appointment, Depends(valid_appointment_id)]
+async def get_current_user(
+    session: SessionDI, token: str = Depends(oauth2_scheme)
+) -> User:
+    token_data = verify_token(token)
+
+    if token_data is None:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Не удалось подтвердить учетные данные",
+        )
+
+    user = await user_crud.get(token_data.user_id, session)
+    if not user:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Не удалось подтвердить учетные данные",
+        )
+
+    if user.is_active is False:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail="Пользователь забанен"
+        )
+    return user
+
+
+def role_checker(required_role: UserRole):
+    async def checker(
+        user: User = Depends(get_current_user),
+    ) -> User:
+        if user.role != required_role.value:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Здесь ничего нет"
+            )
+        return user
+
+    return checker

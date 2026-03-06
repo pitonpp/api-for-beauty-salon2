@@ -1,18 +1,18 @@
 from fastapi import APIRouter
 
+from app.api.dependencies import (
+    SessionDI,
+    check_time_availiable,
+    valid_appointment_id,
+    valid_service_id,
+    valid_user_id,
+)
 from app.crud.appointment import crud_appointment
 from app.schemas.appointment import (
     AppointmentCreate,
-    AppointmentUpdate,
     AppointmentInDB,
+    AppointmentUpdate,
     AppointmentWithRelations,
-)
-from app.api.dependencies import (
-    SessionDI,
-    valid_client_id,
-    valid_service_id,
-    check_time_availiable,
-    valid_appointment_id,
 )
 
 router = APIRouter()
@@ -48,7 +48,7 @@ async def create_appointment(
     service_id: int,
 ):
     service = await valid_service_id(service_id, session)
-    client = await valid_client_id(client_id, session)
+    client = await valid_user_id(client_id, session)
     await check_time_availiable(
         appointment.appointment_time, session, service.duration
     )
@@ -81,7 +81,7 @@ async def update_appointment(
         )
 
     if obj_in.client_id:
-        await valid_client_id(obj_in.client_id, session)
+        await valid_user_id(obj_in.client_id, session)
 
     if obj_in.service_id:
         await valid_service_id(obj_in.service_id, session)

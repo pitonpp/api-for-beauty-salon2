@@ -4,6 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
+import bcrypt
 
 from app.crud.base import CRUDBase
 from app.models.user import User
@@ -16,23 +17,24 @@ class CRUDUser(CRUDBase):
         self, plain_password: str, hashed_password: str
     ) -> bool:
         """Проверяет, совпадает ли пароль с хэшем"""
-        return pwd_context.verify(plain_password, hashed_password)
+        # return pwd_context.verify(plain_password, hashed_password)
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+        )
 
     async def get_password_hash(self, password: str) -> str:
         """Хэширует пароль"""
-        return pwd_context.hash(password)
+        # return pwd_context.hash(password)
+        return bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
 
     async def get_by_phone(
-        self, phone: str, session: AsyncSession
+        self,
+        session: AsyncSession,
+        phone: Optional[str] = None,
     ) -> Optional[User]:
         user = await session.execute(select(User).where(User.phone == phone))
-        user = user.scalar_one_or_none()
-        return user
-
-    async def get_by_id(
-        self, user_id: int, session: AsyncSession
-    ) -> Optional[User]:
-        user = await session.execute(select(User).where(User.id == user_id))
         user = user.scalar_one_or_none()
         return user
 
@@ -67,11 +69,6 @@ class CRUDUser(CRUDBase):
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
-        return db_obj
-
-    async def delete_user(self, db_obj, session: AsyncSession) -> User:
-        await session.delete(db_obj)
-        await session.commit()
         return db_obj
 
 
