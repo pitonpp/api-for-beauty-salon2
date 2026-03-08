@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, func, Enum, Boolean
+from sqlalchemy import Boolean, DateTime, Enum, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonBaseMixin
@@ -13,7 +13,7 @@ class User(CommonBaseMixin, Base):
     )
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole), default=UserRole.CLIENT.value, nullable=False
+        Enum(UserRole), default=UserRole.USER.value, nullable=False
     )
     password: Mapped[str] = mapped_column(String(100), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

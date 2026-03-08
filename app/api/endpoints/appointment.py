@@ -1,19 +1,25 @@
-from fastapi import APIRouter
+from http import HTTPStatus
+
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.dependencies import (
     SessionDI,
     check_time_availiable,
+    get_current_user,
+    role_checker,
     valid_appointment_id,
     valid_service_id,
     valid_user_id,
 )
 from app.crud.appointment import crud_appointment
+from app.models.user import User
 from app.schemas.appointment import (
     AppointmentCreate,
     AppointmentInDB,
     AppointmentUpdate,
     AppointmentWithRelations,
 )
+from app.schemas.status_enum import UserRole
 
 router = APIRouter()
 
@@ -22,8 +28,10 @@ router = APIRouter()
     "/",
     response_model=list[AppointmentInDB],
     summary="Получить список записей на услуги",
+    dependencies=[Depends(role_checker(UserRole.ADMIN))],
 )
 async def get_appointments(session: SessionDI):
+    """Только для админа"""
     appointments = await crud_appointment.get_multi(session)
     return appointments
 
@@ -32,8 +40,10 @@ async def get_appointments(session: SessionDI):
     "/",
     response_model=AppointmentWithRelations,
     summary="Получить полные записи на услуги",
+    dependencies=[Depends(role_checker(UserRole.ADMIN))],
 )
 async def get_appointments_with_relations(session: SessionDI):
+    """Только для админа"""
     appointments = await crud_appointment.get_multi_with_relations(session)
     return appointments
 
@@ -44,16 +54,15 @@ async def get_appointments_with_relations(session: SessionDI):
 async def create_appointment(
     appointment: AppointmentCreate,
     session: SessionDI,
-    client_id: int,
     service_id: int,
+    user: User = Depends(get_current_user),
 ):
     service = await valid_service_id(service_id, session)
-    client = await valid_user_id(client_id, session)
     await check_time_availiable(
         appointment.appointment_time, session, service.duration
     )
     appointment_data = appointment.model_dump()
-    appointment_data["client_id"] = client.id
+    appointment_data["user_id"] = user.id
     appointment_data["service_id"] = service.id
     new_appointment = await crud_appointment.create_appointment(
         session, appointment_data
@@ -65,12 +74,14 @@ async def create_appointment(
     "/{appointment_id}",
     response_model=AppointmentInDB,
     summary="Изменить запись на услугу",
+    dependencies=[Depends(role_checker(UserRole.ADMIN))],
 )
 async def update_appointment(
     appointment_id: int,
     obj_in: AppointmentUpdate,
     session: SessionDI,
 ):
+    """Только для админа"""
     appointment = await valid_appointment_id(appointment_id, session)
     service_id = appointment.service_id
     service = await valid_service_id(service_id, session)
@@ -100,7 +111,13 @@ async def update_appointment(
 async def delete_appointment(
     appointment_id: int,
     session: SessionDI,
+    user: User = Depends(get_current_user),
 ):
     appointment = await valid_appointment_id(appointment_id, session)
+    if appointment.user_id != user.id:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="У вас нет прав удалить чужую запись",
+        )
     deleted_appointment = await crud_appointment.delete(appointment, session)
     return deleted_appointment

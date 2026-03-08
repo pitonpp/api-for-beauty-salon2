@@ -1,14 +1,17 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from app.crud.service import service_crud
-from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceDB
 from app.api.dependencies import (
     SessionDI,
     check_name_service,
+    role_checker,
     valid_service_id,
 )
+from app.crud.service import service_crud
+from app.models.user import User
+from app.schemas.service import ServiceCreate, ServiceDB, ServiceUpdate
+from app.schemas.status_enum import UserRole
 
 router = APIRouter()
 
@@ -29,7 +32,12 @@ async def get_services(session: SessionDI):
     summary="Создать новую услугу",
     status_code=HTTPStatus.CREATED,
 )
-async def create_service(service: ServiceCreate, session: SessionDI):
+async def create_service(
+    service: ServiceCreate,
+    session: SessionDI,
+    user_role: User = Depends(role_checker(UserRole.ADMIN)),
+):
+    """Только для админа"""
     await check_name_service(service.name, session)
     new_service = await service_crud.create(service, session)
     return new_service
@@ -44,7 +52,9 @@ async def update_service(
     service_id: int,
     obj_in: ServiceUpdate,
     session: SessionDI,
+    user_role: User = Depends(role_checker(UserRole.ADMIN)),
 ):
+    """Только для админа"""
     service = await valid_service_id(service_id, session)
 
     if obj_in.name is not None:
@@ -59,7 +69,12 @@ async def update_service(
     response_model=ServiceDB,
     summary="Удалить услугу",
 )
-async def delete_service(service_id: int, session: SessionDI):
+async def delete_service(
+    service_id: int,
+    session: SessionDI,
+    user_role: User = Depends(role_checker(UserRole.ADMIN)),
+):
+    """Только для админа"""
     service = await valid_service_id(service_id, session)
     service = await service_crud.delete(service, session)
     return service

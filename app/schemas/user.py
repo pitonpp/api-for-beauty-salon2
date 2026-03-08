@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.status_enum import UserRole
+
 
 class UserCreate(BaseModel):
     phone: str = Field(
@@ -38,7 +40,7 @@ class TokenData(BaseModel):
 class UserDB(BaseModel):
     phone: str
     name: str
-    role: str
+    role: UserRole
     created_at: datetime
     is_active: bool
 
@@ -54,3 +56,7 @@ class UserUpdate(BaseModel):
 class UserShort(BaseModel):
     phone: str
     name: str
+
+
+class UserAdminCreate(UserCreate):
+    role: UserRole = UserRole.ADMIN

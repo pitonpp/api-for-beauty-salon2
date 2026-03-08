@@ -3,23 +3,27 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.crud.user import user_crud
-from app.models.user import User
-from app.schemas.user import UserCreate, UserShort, UserUpdate, UserDB, Token
 from app.api.dependencies import (
-    get_current_user,
     SessionDI,
     check_unique_phone,
-    valid_user_id,
+    get_current_user,
     role_checker,
+    valid_user_id,
 )
 from app.core.jwt_services import create_access_token
+from app.crud.user import user_crud
+from app.models.user import User
+from app.schemas.status_enum import UserRole
+from app.schemas.user import Token, UserCreate, UserDB, UserShort, UserUpdate
 
 router = APIRouter()
 
 
 @router.post(
-    "/signup", response_model=UserShort, summary="Создать нового пользователя"
+    "/signup",
+    response_model=UserShort,
+    summary="Создать нового пользователя",
+    status_code=201,
 )
 async def create_user(user: UserCreate, session: SessionDI):
     await check_unique_phone(user.phone, session)
@@ -37,13 +41,13 @@ async def get_me(current_user: User = Depends(get_current_user)):
 
 
 @router.post(
-    "/login", response_model=UserShort, summary="Авторизация пользователя"
+    "/login", response_model=Token, summary="Авторизация пользователя"
 )
 async def login(
     session: SessionDI, form_data: OAuth2PasswordRequestForm = Depends()
 ):
     user = await user_crud.get_by_phone(session, form_data.username)
-    if user is None or not user_crud.verify_password(
+    if user is None or not await user_crud.verify_password(
         form_data.password, user.password
     ):
         raise HTTPException(
@@ -58,12 +62,17 @@ async def login(
     "/users",
     response_model=list[UserDB],
     summary="Получить список пользователей",
+    dependencies=[Depends(role_checker(UserRole.ADMIN))],
 )
 async def get_users(session: SessionDI):
+    """Только для админа"""
     users = await user_crud.get_multi(session)
     return users
 
 
+# Здесь надо будет переписать ручку,
+# чтобы через /me обновлять текущего пользователя
+# или оставить эту для админа
 @router.patch(
     "/{user_id}",
     response_model=UserDB,
@@ -80,9 +89,16 @@ async def update_client(user_id: int, obj_in: UserUpdate, session: SessionDI):
 
 
 @router.delete(
-    "/{user_id}", response_model=UserDB, summary="Удалить пользователя"
+    "/{user_id}",
+    response_model=UserDB,
+    summary="Удалить пользователя",
+    dependencies=[Depends(role_checker(UserRole.ADMIN))],
 )
-async def delete_client(user_id: int, session: SessionDI):
+async def delete_client(
+    user_id: int,
+    session: SessionDI,
+):
+    """Только для админа"""
     user = await valid_user_id(user_id, session)
     user = await user_crud.delete(user, session)
     return user
