@@ -1,0 +1,28 @@
+name: Beauty API Salon
+
+services:
+  db:
+    image: postgres:18-alpine
+    env_file:
+      - ./.env
+    environment:
+      PGDATA: /var/lib/postgresql/18/docker/pgdata
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/18/docker/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_NAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge
