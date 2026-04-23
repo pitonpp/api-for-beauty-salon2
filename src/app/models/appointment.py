@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import Enum, ForeignKey, Integer, DateTime
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.app.core.db import Base, CommonBaseMixin
-from src.app.schemas.status_enum import AppointmentStatus
+from app.core.db import Base, CommonBaseMixin
+from app.schemas.status_enum import AppointmentStatus
 
 
 class Appointment(CommonBaseMixin, Base):
@@ -15,10 +15,10 @@ class Appointment(CommonBaseMixin, Base):
         Integer, ForeignKey("service.id"), nullable=False
     )
     appointment_time: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
+        DateTime(timezone=True), nullable=False, comment="Время записи"
     )
     status: Mapped[AppointmentStatus] = mapped_column(
-        Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED.value
+        Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED.value, comment="Статус записи"
     )
 
     user: Mapped["User"] = relationship("User", back_populates="appointments")

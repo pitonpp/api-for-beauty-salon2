@@ -1,4 +1,7 @@
-from sqlalchemy import Integer
+from datetime import datetime
+
+from sqlalchemy import DateTime, Integer, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
@@ -23,6 +26,11 @@ class CommonBaseMixin:
         return cls.__name__.lower()
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("CURRENT_TIMESTAMP"),
+        nullable=False,
+    )
 
 
 engine = create_async_engine(settings.database_url, echo=True)
@@ -31,4 +39,8 @@ AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 async def get_async_session():
     async with AsyncSessionLocal() as async_session:
-        yield async_session
+        try:
+            yield async_session
+        except SQLAlchemyError:
+            await async_session.rollback()
+            raise

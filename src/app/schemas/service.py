@@ -1,31 +1,35 @@
 from datetime import timedelta
+from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field
+
+from .custom_types import Name, Price, Description
 
 
 class ServiceBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=100)
-    price: PositiveInt
+    name: Name
+    price: Price
     duration: timedelta
-
-    model_config = ConfigDict(from_attributes=True)
+    description: Description
 
 
 class ServiceCreate(ServiceBase):
-    pass
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
 
-class ServiceUpdate(ServiceBase):
-    name: str | None = None
-    price: PositiveInt | None = None
+class ServiceUpdate(ServiceCreate):
+    name: Name | None = None
+    price: Price | None = None
     duration: timedelta | None = None
-
-
-class ServiceDB(ServiceBase):
-    id: int
+    description: Description | None = None
 
 
 class ServiceShort(BaseModel):
     id: int
     name: str
-    price: PositiveInt
+    price: Decimal
+
+
+class ServiceDB(ServiceShort):
+    duration: timedelta
+    description: str

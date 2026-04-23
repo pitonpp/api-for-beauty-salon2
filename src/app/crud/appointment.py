@@ -4,18 +4,26 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.app.crud.base import CRUDBase
-from src.app.models.appointment import Appointment
+from app.crud.base import CRUDBase
+from app.models.appointment import Appointment
+from app.schemas import AppointmentCreate, AppointmentUpdate
+from app.schemas.appointment import AppointmentAdminUpdate
 
 
-class CRUDAppointment(CRUDBase):
+class CRUDAppointment(
+    CRUDBase[
+        Appointment,
+        AppointmentCreate,
+        AppointmentUpdate | AppointmentAdminUpdate,
+    ]
+):
     async def get_with_relations(
         self, session: AsyncSession, obj_id: int
     ) -> Optional[Appointment]:
         stmt = (
             select(self.model)
             .options(
-                selectinload(Appointment.client),
+                selectinload(Appointment.user),
                 selectinload(Appointment.service),
             )
             .where(self.model.id == obj_id)
@@ -29,7 +37,7 @@ class CRUDAppointment(CRUDBase):
         stmt = (
             select(self.model)
             .options(
-                selectinload(Appointment.client),
+                selectinload(Appointment.user),
                 selectinload(Appointment.service),
             )
             .offset(skip)
@@ -38,13 +46,6 @@ class CRUDAppointment(CRUDBase):
         )
         result = await session.execute(stmt)
         return result.scalars().all()
-
-    async def create_appointment(self, session: AsyncSession, request_data):
-        db_obj = Appointment(**request_data)
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
 
 
 crud_appointment = CRUDAppointment(Appointment)

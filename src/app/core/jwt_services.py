@@ -238,3 +238,6 @@ class TokenService:
             data={JWT_USER_ID: token_data.user_id}, session=session
         )
         return new_access_token, new_refresh_token
+
+
+token_service = TokenService()

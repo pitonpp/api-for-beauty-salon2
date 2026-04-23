@@ -1,17 +1,18 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
 
-from src.app.core.db import Base, CommonBaseMixin
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import (
     UUID,
     Boolean,
     DateTime,
+    ForeignKey,
     Integer,
     String,
-    ForeignKey,
     text,
 )
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.db import Base, CommonBaseMixin
 
 
 class RefreshToken(CommonBaseMixin, Base):
@@ -20,23 +21,26 @@ class RefreshToken(CommonBaseMixin, Base):
         unique=True,
         index=True,
         nullable=False,
+        comment="Уникальный идентификатор токена"
     )
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("user.id"), index=True
+        Integer, ForeignKey("user.id"), index=True, comment="ID пользователя"
     )
     token_hash: Mapped[str] = mapped_column(
         String,
         unique=True,
         nullable=True,
+        comment="Хэш токена"
     )
     expires_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(timezone=True), comment="Время истечения токена"
     )
     revoked: Mapped[bool] = mapped_column(
-        Boolean, default=False, server_default="false"
+        Boolean, default=False, server_default="false", comment="Отозван ли токен"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
+        comment="Время создания токена"
     )

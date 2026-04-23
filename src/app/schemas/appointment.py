@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta, timezone
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from src.app.schemas.service import ServiceShort
-from src.app.schemas.status_enum import AppointmentStatus
-from src.app.schemas.user import UserShort
+from .service import ServiceShort
+from .status_enum import AppointmentStatus
+from .user import UserShort
 
 TIME_EXAMPLE = (
     (datetime.now(timezone.utc) + timedelta(hours=1))
@@ -13,49 +14,26 @@ TIME_EXAMPLE = (
 )
 
 
-def validate_future(value: datetime | None) -> datetime | None:
-    if value is None:
-        return value
-
-    if value <= datetime.now(timezone.utc):
-        raise ValueError("Запись должна быть в будущем времени")
-    return value
-
-
 class AppointmentBase(BaseModel):
     appointment_time: datetime = Field(
         ..., description="Время записи", examples=[TIME_EXAMPLE]
     )
 
-    model_config = ConfigDict(from_attributes=True)
-
 
 class AppointmentCreate(AppointmentBase):
-    service_id: int
-
-    @field_validator("appointment_time")
-    def check_future(cls, value):
-        return validate_future(value)
+    model_config = ConfigDict(extra="forbid")
 
 
-class AppointmentUpdate(BaseModel):
-    appointment_time: datetime | None = None
-    client_id: int | None = None
-    service_id: int | None = None
+class AppointmentAdminUpdate(AppointmentCreate):
     status: AppointmentStatus | None = AppointmentStatus.SCHEDULED
 
-    @field_validator("appointment_time")
-    def check_future(cls, value):
-        return validate_future(value)
 
-    @field_validator("status")
-    def check_status(cls, value):
-        if value is not None:
-            if value not in AppointmentStatus:
-                raise ValueError("Недопустимое значение статуса")
-        return value
-
-    model_config = ConfigDict(from_attributes=True)
+class AppointmentUpdate(AppointmentCreate):
+    appointment_time: datetime | None = None
+    status: Literal[AppointmentStatus.CANCELED] | None = Field(
+        None,
+        description="Пользователь может только отменить запись",
+    )
 
 
 class AppointmentInDB(AppointmentBase):
@@ -63,6 +41,7 @@ class AppointmentInDB(AppointmentBase):
     client_id: int
     service_id: int
     status: str
+    created_at: datetime
 
 
 class AppointmentWithRelations(BaseModel):

@@ -1,25 +1,41 @@
-from datetime import datetime
-
-from sqlalchemy import Boolean, DateTime, Enum, String, func
+from sqlalchemy import Boolean, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.app.core.db import Base, CommonBaseMixin
-from src.app.schemas.status_enum import UserRole
+from app.core.db import Base, CommonBaseMixin
+from app.schemas.status_enum import UserRole
 
 
 class User(CommonBaseMixin, Base):
     phone: Mapped[str] = mapped_column(
-        String(12), unique=True, nullable=False
+        String(12),
+        unique=True,
+        nullable=False,
+        comment="Номер телефона пользователя в формате +7XXXXXXXXXX",
     )
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    username: Mapped[str] = mapped_column(
+        String(100),
+        unique=True,
+        nullable=False,
+        comment="Уникальное имя пользователя (логин)",
+    )
+    first_name: Mapped[str] = mapped_column(
+        String(100), nullable=False, comment="Имя пользователя"
+    )
+    last_name: Mapped[str] = mapped_column(
+        String(100), nullable=True, comment="Фамилия пользователя"
+    )
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole), default=UserRole.USER.value, nullable=False
+        Enum(UserRole),
+        default=UserRole.USER.value,
+        nullable=False,
+        comment="Роль пользователя",
     )
-    password: Mapped[str] = mapped_column(String(100), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+    password: Mapped[str] = mapped_column(
+        String(100), nullable=False, comment="Хэшированный пароль"
     )
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, comment="Активен ли пользователь"
+    )
 
     appointments: Mapped["Appointment"] = relationship(
         "Appointment", back_populates="user"

@@ -16,3 +16,8 @@ TOKEN_NOT_FOUND = "Токен не найден"
 TOKEN_REVOKED = "Токен отозван"
 INVALID_HASH_TOKEN = "Невалидный хэш токена"
 ACTIVE_TOKEN_NOT_FOUND = "Активный токен не найден"
+
+DESCRIPTION_PATTERN = r"^[\s\S]{1,500}$"
+FIRST_AND_LAST_NAME_PATTERN = r"^[А-ЯЁ][а-яё]+$"
+USERNAME_PATTERN = r"^[A-Za-z][A-Za-z0-9_]+$"
+PHONE_PATTERN = r"^(\+7|8)9\d{9}$"

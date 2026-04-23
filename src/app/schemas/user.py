@@ -1,28 +1,19 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
-from src.app.schemas.status_enum import UserRole
+from .status_enum import UserRole
+from .custom_types import Phone, Password, Username, FirstAndLastName
 
 
 class UserCreate(BaseModel):
-    phone: str = Field(
-        ...,
-        pattern=r"^\+?[7]?\d{10}$",
-        description="Номер должен быть в формате +71234567890",
-    )
-    name: str = Field(..., min_length=2, max_length=50)
-    password: str = Field(
-        ...,
-        min_length=6,
-        max_length=100,
-        description="Пароль должен быть минимум 6 символов",
-    )
+    phone: Phone
+    username: Username
+    first_name: FirstAndLastName
+    last_name: FirstAndLastName | None = None
+    password: Password
 
-
-class UserLogin(BaseModel):
-    phone: str
-    password: str
+    model_config = ConfigDict(extra="forbid")
 
 
 class Token(BaseModel):
@@ -31,30 +22,37 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: str
+    user_id: int | None = None
     type: str
     jti: str | None = None
 
 
-class UserDB(BaseModel):
+class UserShort(BaseModel):
     phone: str
-    name: str
-    role: UserRole
-    created_at: datetime
-    is_active: bool
+    username: str
+    first_name: str
+    last_name: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserUpdate(BaseModel):
-    password: str | None = None
-    phone: str | None = None
-    name: str | None = None
+class UserDB(UserShort):
+    role: UserRole
+    created_at: datetime
+    is_active: bool
 
 
-class UserShort(BaseModel):
-    phone: str
-    name: str
+class UserUpdate(UserCreate):
+    first_name: FirstAndLastName | None = None
+    last_name: FirstAndLastName | None = None
+    password: Password | None = None
+    phone: Phone | None = None
+    username: Username | None = None
+
+
+class UserUpdateAdmin(UserUpdate):
+    # role: UserRole | None = None
+    is_active: bool | None = None
 
 
 class UserAdminCreate(UserCreate):
