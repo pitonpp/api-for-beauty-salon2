@@ -22,7 +22,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: int | None = None
+    user_id: int
     type: str
     jti: str | None = None
 

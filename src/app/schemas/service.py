@@ -1,7 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from .custom_types import Name, Price, Description
 

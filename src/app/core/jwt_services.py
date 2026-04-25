@@ -79,13 +79,16 @@ class TokenService:
         refresh_token_expire = now + timedelta(
             days=self.refresh_token_expire_days
         )
+        jti = uuid.uuid4()
         access_token_data.update(
-            {JWT_EXP: access_token_expire, JWT_TYPE: JWT_TYPE_ACCESS}
+            {
+                JWT_EXP: access_token_expire,
+                JWT_TYPE: JWT_TYPE_ACCESS,
+            }
         )
         access_token = jwt.encode(
             access_token_data, self.secret_key, self.algorithm
         )
-        jti = uuid.uuid4()
         db_token = RefreshToken(
             user_id=refresh_token_data[JWT_USER_ID],
             expires_at=refresh_token_expire,
@@ -136,12 +139,11 @@ class TokenService:
                 detail=INVALID_TOKEN_TYPE,
             )
 
-        if token_type == JWT_TYPE_REFRESH:
-            if JWT_JTI not in payload:
-                raise InvalidTokenError(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail=JWT_JTI_ERROR,
-                )
+        if JWT_JTI not in payload:
+            raise InvalidTokenError(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=JWT_JTI_ERROR,
+            )
 
         return TokenData(**payload)
 

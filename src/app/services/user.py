@@ -44,7 +44,7 @@ class UserService(BaseService[User, CRUDUser]):
         user_id: int,
         session: AsyncSession,
         request: UserUpdate | UserUpdateAdmin,
-        current_user: User,
+        current_user: User | None = None,
     ) -> User:
         try:
             user_to_update = await self.validate_object_id(user_id, session)

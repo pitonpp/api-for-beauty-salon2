@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from .service import ServiceShort
 from .status_enum import AppointmentStatus
@@ -24,7 +24,14 @@ class AppointmentCreate(AppointmentBase):
     model_config = ConfigDict(extra="forbid")
 
 
+class AppointmentAdminCreate(AppointmentCreate):
+    service_id: int
+    user_id: int
+
+
 class AppointmentAdminUpdate(AppointmentCreate):
+    appointment_time: datetime | None = None
+    service_id: int | None = None
     status: AppointmentStatus | None = AppointmentStatus.SCHEDULED
 
 
@@ -36,17 +43,22 @@ class AppointmentUpdate(AppointmentCreate):
     )
 
 
-class AppointmentInDB(AppointmentBase):
+class AppointmentShort(AppointmentBase):
+    service_name: str
+    status: AppointmentStatus
+    created_at: datetime
+
+
+class AppointmentInDB(AppointmentShort):
     id: int
     client_id: int
     service_id: int
-    status: str
-    created_at: datetime
 
 
 class AppointmentWithRelations(BaseModel):
     id: int
     appointment_time: datetime
-    status: str
+    status: AppointmentStatus
     client: UserShort
     service: ServiceShort
+    created_at: datetime

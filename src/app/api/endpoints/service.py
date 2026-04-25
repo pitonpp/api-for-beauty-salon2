@@ -1,80 +1,47 @@
-from http import HTTPStatus
+from fastapi import APIRouter
 
-from fastapi import APIRouter, Depends
+from app.models.service import Service
+from app.schemas.service import ServiceCreate, ServiceDB, ServiceUpdate
 
-from src.app.api.dependencies import (
-    SessionDI,
-    check_name_service,
-    role_checker,
-    valid_service_id,
-)
-from src.app.crud.service import service_crud
-from src.app.models.user import User
-from src.app.schemas.service import ServiceCreate, ServiceDB, ServiceUpdate
-from src.app.schemas.status_enum import UserRole
+from ..dependencies import AllowAdminDI, ServiceManagerDI, SessionDI
 
 router = APIRouter()
 
 
-@router.get(
-    "/",
-    response_model=list[ServiceDB],
-    summary="Получить список услуг",
-)
-async def get_services(session: SessionDI):
-    services = await service_crud.get_multi(session)
-    return services
+@router.get("/", response_model=list[ServiceDB])
+async def get_all_services(
+    session: SessionDI,
+    service_manager: ServiceManagerDI,
+    _: AllowAdminDI,
+) -> list[Service]:
+    return await service_manager.get_multi(session)
 
 
-@router.post(
-    "/",
-    response_model=ServiceDB,
-    summary="Создать новую услугу",
-    status_code=HTTPStatus.CREATED,
-)
+@router.get("/{service_id}", response_model=ServiceDB)
+async def get_service_by_id(
+    session: SessionDI,
+    service_manager: ServiceManagerDI,
+    service_id: int,
+) -> Service:
+    return await service_manager.validate_object_id(service_id, session)
+
+
+@router.post("/", response_model=ServiceDB)
 async def create_service(
-    service: ServiceCreate,
     session: SessionDI,
-    user_role: User = Depends(role_checker(UserRole.ADMIN)),
-):
-    """Только для админа"""
-    await check_name_service(service.name, session)
-    new_service = await service_crud.create(service, session)
-    return new_service
+    service_manager: ServiceManagerDI,
+    _: AllowAdminDI,
+    request: ServiceCreate,
+) -> Service:
+    return await service_manager.create_service(session, request)
 
 
-@router.patch(
-    "/{service_id}",
-    response_model=ServiceDB,
-    summary="Обновить данные услуги",
-)
+@router.patch("/{service_id}", response_model=ServiceDB)
 async def update_service(
-    service_id: int,
-    obj_in: ServiceUpdate,
     session: SessionDI,
-    user_role: User = Depends(role_checker(UserRole.ADMIN)),
-):
-    """Только для админа"""
-    service = await valid_service_id(service_id, session)
-
-    if obj_in.name is not None:
-        await check_name_service(obj_in.name, session)
-
-    service = await service_crud.update(service, obj_in, session)
-    return service
-
-
-@router.delete(
-    "/{service_id}",
-    response_model=ServiceDB,
-    summary="Удалить услугу",
-)
-async def delete_service(
+    service_manager: ServiceManagerDI,
+    _: AllowAdminDI,
     service_id: int,
-    session: SessionDI,
-    user_role: User = Depends(role_checker(UserRole.ADMIN)),
-):
-    """Только для админа"""
-    service = await valid_service_id(service_id, session)
-    service = await service_crud.delete(service, session)
-    return service
+    request: ServiceUpdate,
+) -> Service:
+    return await service_manager.update_service(session, service_id, request)

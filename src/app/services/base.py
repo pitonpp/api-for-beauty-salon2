@@ -72,3 +72,6 @@ class BaseService(Generic[ModelType, CRUDType]):
                 detail="Объект не найден",
             )
         return obj
+
+    async def get_multi(self, session: AsyncSession) -> list[ModelType]:
+        return await self.crud.get_multi(session)

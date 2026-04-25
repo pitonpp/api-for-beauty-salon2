@@ -18,10 +18,16 @@ class Appointment(CommonBaseMixin, Base):
         DateTime(timezone=True), nullable=False, comment="Время записи"
     )
     status: Mapped[AppointmentStatus] = mapped_column(
-        Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED.value, comment="Статус записи"
+        Enum(AppointmentStatus),
+        default=AppointmentStatus.SCHEDULED.value,
+        comment="Статус записи",
     )
 
     user: Mapped["User"] = relationship("User", back_populates="appointments")
     service: Mapped["Service"] = relationship(
         "Service", back_populates="appointments"
     )
+
+    @property
+    def service_name(self) -> str:
+        return self.service.service_name
