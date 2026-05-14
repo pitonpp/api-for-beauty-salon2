@@ -14,26 +14,27 @@ class ServiceManager(BaseService[Service, CRUDService]):
     def __init__(self, crud: CRUDService):
         super().__init__(crud)
 
+    async def get_services(
+        self,
+        session: AsyncSession,
+        active: bool = True,
+    ) -> list[Service]:
+        if active:
+            return await self.crud.get_multi(
+                session,
+                is_active=True,
+            )
+        return await self.crud.get_multi(session)
+
     async def create_service(
         self, session: AsyncSession, request: ServiceCreate
     ) -> Service:
-        try:
-            return await self.crud.create(request, session)
-
-        except IntegrityError as e:
-            await session.rollback()
-            self._handle_integrity_error(e, "create")
+        return await self.crud.create(request, session)
 
     async def update_service(
         self, session: AsyncSession, service_id: int, request: ServiceUpdate
     ) -> Service:
-        try:
-            service = await self.validate_object_id(service_id, session)
-            return await self.crud.update(service, request, session)
-
-        except IntegrityError as e:
-            await session.rollback()
-            self._handle_integrity_error(e, "update")
+        return await self.update(session, service_id, request)
 
 
 service_manager = ServiceManager(service_crud)

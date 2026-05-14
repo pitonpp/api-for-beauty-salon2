@@ -47,7 +47,7 @@ class UserService(BaseService[User, CRUDUser]):
         current_user: User | None = None,
     ) -> User:
         try:
-            user_to_update = await self.validate_object_id(user_id, session)
+            user_to_update = await self.get_object_or_404(user_id, session)
             update_data = request.model_dump(exclude_unset=True)
             if request.password is not None:
                 update_data = self._add_password_hash(update_data)
@@ -79,6 +79,15 @@ class UserService(BaseService[User, CRUDUser]):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Админ не может деактивировать сам себя",
             )
+
+    async def get_users(
+        self,
+        session: AsyncSession,
+        **filters,
+    ) -> list[User]:
+        if filters:
+            return await self.crud.get_multi(session, **filters)
+        return await self.crud.get_multi(session)
 
 
 user_service = UserService(user_crud)

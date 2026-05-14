@@ -8,12 +8,12 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.app.core.db import Base, get_async_session
-from src.app.crud.user import user_crud
-from src.app.main import app
-from src.app.models.user import User
-from src.app.schemas.status_enum import UserRole
-from src.app.schemas.user import UserCreate
+from app.core.db import Base, get_async_session
+from app.crud.user import user_crud
+from main import app
+from app.models.user import User
+from app.schemas.status_enum import UserRole
+from app.schemas.user import UserCreate
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 

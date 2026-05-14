@@ -1,47 +1,54 @@
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Type
 
-
-from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import Base
-
-Model = TypeVar("Model", bound=Base)
-CreateSchema = TypeVar("CreateSchema", bound=BaseModel)
-UpdateSchema = TypeVar("UpdateSchema", bound=BaseModel)
+from app.core.types import CreateSchemaType, ModelType, UpdateSchemaType
 
 
-class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
-    def __init__(self, model):
+class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+    def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    async def get(self, obj_id: int, session: AsyncSession) -> Model | None:
+    async def get(
+        self,
+        obj_id: int,
+        session: AsyncSession,
+    ) -> ModelType | None:
         return await session.get(self.model, obj_id)
 
     async def get_one_by(
-        self, session: AsyncSession, **kwargs
-    ) -> Model | None:
+        self,
+        session: AsyncSession,
+        **kwargs,
+    ) -> ModelType | None:
         stmt = select(self.model).filter_by(**kwargs)
         db_obj = await session.execute(stmt)
         return db_obj.scalar_one_or_none()
 
     async def get_multi(
-        self, session: AsyncSession, skip: int = 0, limit: int = 10
-    ) -> list[Model]:
-        stmt = (
-            select(self.model)
-            .offset(skip)
-            .limit(limit)
-            .order_by(self.model.id)
-        )
+        self,
+        session: AsyncSession,
+        skip: int = 0,
+        limit: int = 10,
+        **filters,
+    ) -> list[ModelType]:
+        stmt = select(self.model)
+
+        if filters:
+            stmt = stmt.filter_by(**filters)
+
+        stmt = stmt.offset(skip).limit(limit).order_by(self.model.id)
+
         db_objs = await session.execute(stmt)
         return db_objs.scalars().all()
 
     async def create(
-        self, request: CreateSchema | dict[str, Any], session: AsyncSession
-    ) -> Model:
+        self,
+        request: CreateSchemaType | dict[str, Any],
+        session: AsyncSession,
+    ) -> ModelType:
         if isinstance(request, dict):
             request_data = request
         else:
@@ -55,10 +62,10 @@ class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
 
     async def update(
         self,
-        db_obj: Model,
-        request: UpdateSchema | dict[str, Any],
+        db_obj: ModelType,
+        request: UpdateSchemaType | dict[str, Any],
         session: AsyncSession,
-    ) -> Model:
+    ) -> ModelType:
         if isinstance(request, dict):
             update_data = request
         else:
@@ -73,7 +80,9 @@ class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
         await session.refresh(db_obj)
         return db_obj
 
-    async def delete(self, db_obj: Model, session: AsyncSession) -> Model:
+    async def delete(
+        self, db_obj: ModelType, session: AsyncSession
+    ) -> ModelType:
         await session.delete(db_obj)
         await session.commit()
         return db_obj

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.models.user import User
+from app.schemas.appointment import AppointmentShort, AppointmentUpdate
 from app.schemas.user import (
     UserCreate,
     UserDB,
@@ -12,8 +12,11 @@ from app.schemas.user import (
 from ..dependencies import (
     AllowAdminDI,
     AllowUserDI,
+    AppointmentServiceDI,
     SessionDI,
     UserServiceDI,
+    to_schema,
+    to_schema_list,
 )
 
 router = APIRouter()
@@ -22,16 +25,17 @@ router = APIRouter()
 @router.post("/sign_up", response_model=UserShort)
 async def sign_up(
     session: SessionDI, request: UserCreate, user_service: UserServiceDI
-):
-    return await user_service.create_user(session, request)
+) -> UserShort:
+    user = await user_service.create_user(session, request)
+    return to_schema(user, UserShort)
 
 
 @router.get("/me", response_model=UserDB)
 async def get_me(
     session: SessionDI,
     user: AllowUserDI,
-) -> User:
-    return user
+) -> UserDB:
+    return to_schema(user, UserDB)
 
 
 @router.patch("/me", response_model=UserDB)
@@ -40,33 +44,59 @@ async def update_me(
     user: AllowUserDI,
     request: UserUpdate,
     user_service: UserServiceDI,
-) -> User:
-    return await user_service.update_user(user.id, session, request)
+) -> UserDB:
+    user = await user_service.update_user(user.id, session, request)
+    return to_schema(user, UserDB)
 
 
-@router.patch("/{user_id}", response_model=UserDB)
-async def update_user(
+@router.get(
+    "/me/appointments",
+    response_model=list[AppointmentShort],
+)
+async def get_appointments(
     session: SessionDI,
-    request: UserUpdateAdmin,
-    user_service: UserServiceDI,
-    user: AllowAdminDI,
-    user_id: int,
-) -> User:
-    return await user_service.update_user(user_id, session, request, user)
+    appointment_service: AppointmentServiceDI,
+    user: AllowUserDI,
+) -> list[AppointmentShort]:
+    appointments = await appointment_service.get_user_appointments(
+        session, user
+    )
+    return to_schema_list(appointments, AppointmentShort)
 
 
-@router.get("/", response_model=list[UserDB])
-async def get_users(
-    session: SessionDI, _: AllowAdminDI, user_service: UserServiceDI
-) -> list[User]:
-    return await user_service.get_multi(session)
-
-
-@router.get("/{user_id}", response_model=UserDB)
-async def get_user(
+@router.get(
+    "/me/appointments/{appointment_id}",
+    response_model=AppointmentShort,
+)
+async def get_appointment(
     session: SessionDI,
-    user_id: int,
-    user_service: UserServiceDI,
-    _: AllowAdminDI,
-) -> User:
-    return await user_service.validate_object_id(user_id, session)
+    appointment_service: AppointmentServiceDI,
+    user: AllowUserDI,
+    appointment_id: int,
+) -> AppointmentShort:
+    appointment = await appointment_service.get_user_appointment(
+        session,
+        user,
+        appointment_id,
+    )
+    return to_schema(appointment, AppointmentShort)
+
+
+@router.patch(
+    "/me/appointments/{appointment_id}",
+    response_model=AppointmentShort,
+)
+async def update_appointment(
+    session: SessionDI,
+    appointment_id: int,
+    appointment_service: AppointmentServiceDI,
+    request: AppointmentUpdate,
+    user: AllowUserDI,
+) -> AppointmentShort:
+    appointment = await appointment_service.update_appointment(
+        request,
+        session,
+        appointment_id,
+        user,
+    )
+    return to_schema(appointment, AppointmentShort)

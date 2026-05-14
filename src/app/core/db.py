@@ -8,12 +8,12 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
-    mapped_column,
     Mapped,
     declared_attr,
+    mapped_column,
 )
 
-from src.app.core.config import settings
+from app.core.config import settings
 
 
 class Base(DeclarativeBase):
@@ -33,7 +33,7 @@ class CommonBaseMixin:
     )
 
 
-engine = create_async_engine(settings.database_url, echo=True)
+engine = create_async_engine(settings.async_database_url)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 

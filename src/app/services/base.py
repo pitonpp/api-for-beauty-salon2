@@ -1,15 +1,16 @@
-from typing import Generic, Type, TypeVar
+from typing import Any, Generic, Type
 
 from fastapi import HTTPException, status
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import Base
-from app.crud.base import CRUDBase
-
-CRUDType = TypeVar("CRUDType", bound=CRUDBase)
-ModelType = TypeVar("ModelType", bound=Base)
+from app.core.types import (
+    CRUDType,
+    CreateSchemaType,
+    ModelType,
+    UpdateSchemaType,
+)
 
 
 class BaseService(Generic[ModelType, CRUDType]):
@@ -27,7 +28,7 @@ class BaseService(Generic[ModelType, CRUDType]):
         if cls.model:
             inspector = inspect(cls.model)
             column = inspector.columns.get(field)
-            if column and column.comment:
+            if column is not None and column.comment:
                 return column.comment
 
         return " ".join(word.capitalize() for word in field.split("_"))
@@ -49,12 +50,18 @@ class BaseService(Generic[ModelType, CRUDType]):
             operation, operation
         )
 
+        if "uq_service_master" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Услуга уже добавлена",
+            )
+
         for field in cls._get_unique_fields():
             if field in error_msg:
                 field_name = cls._get_field_name(field)
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail=f"Поле {field_name} уже занято",
+                    detail=f"Поле '{field_name}' уже занято",
                 )
 
         raise HTTPException(
@@ -62,7 +69,7 @@ class BaseService(Generic[ModelType, CRUDType]):
             detail="Конфликт данных при сохранении",
         )
 
-    async def validate_object_id(
+    async def get_object_or_404(
         self, obj_id: int, session: AsyncSession
     ) -> ModelType:
         obj = await self.crud.get(obj_id, session)
@@ -73,5 +80,30 @@ class BaseService(Generic[ModelType, CRUDType]):
             )
         return obj
 
-    async def get_multi(self, session: AsyncSession) -> list[ModelType]:
-        return await self.crud.get_multi(session)
+    async def create(
+        self,
+        request: CreateSchemaType | dict[str, Any],
+        session: AsyncSession,
+    ) -> ModelType:
+        try:
+            return await self.crud.create(request, session)
+
+        except IntegrityError as e:
+            await session.rollback()
+            self._handle_integrity_error(e, "create")
+
+    async def update(
+        self,
+        session: AsyncSession,
+        obj_id: int,
+        request: UpdateSchemaType,
+        obj: ModelType | None = None,
+    ) -> ModelType:
+        try:
+            if obj is None:
+                obj = await self.get_object_or_404(obj_id, session)
+            return await self.crud.update(obj, request, session)
+
+        except IntegrityError as e:
+            await session.rollback()
+            self._handle_integrity_error(e, "update")

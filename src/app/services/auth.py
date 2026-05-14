@@ -1,33 +1,38 @@
-from typing import Callable
+from typing import Annotated, Callable
 
-from app.constants import JWT_USER_ID
-from core.jwt_services import TokenService, token_service
 from fastapi import Depends, HTTPException, Request, Response, status
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.constants import JWT_USER_ID
+from app.core.jwt_services import TokenService, token_service
 from app.crud.user import CRUDUser, user_crud
 from app.models.user import User
 from app.schemas.status_enum import UserRole
 from app.schemas.user import Token
 from app.services.password import verify_password
+from app.core.db import get_async_session
 
 from .base import BaseService
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+SessionDependency = Annotated[AsyncSession, Depends(get_async_session)]
 
 
 class AuthService(BaseService[User, CRUDUser]):
     model = User
 
     def __init__(
-        self, user_crud: CRUDUser, token_service: TokenService
+        self,
+        user_crud: CRUDUser,
+        token_service: TokenService,
     ) -> None:
         super().__init__(user_crud)
         self.token_service = token_service
 
     async def get_current_user(
-        self, session: AsyncSession, token: str
+        self,
+        session: AsyncSession,
+        token: str,
     ) -> User:
         token_data = self.token_service.verify_access_token(token)
         user = await self.crud.get(token_data.user_id, session)
@@ -46,11 +51,22 @@ class AuthService(BaseService[User, CRUDUser]):
 
         return user
 
+    def get_token_from_request(self, request: Request) -> str:
+        auth = request.headers.get("Authorization")
+        if auth and auth.startswith("Bearer "):
+            return auth[7:]
+        token = self._get_token_from_cookie(request, True)
+        if token:
+            return token
+
     def role_check(self, *allowed_roles: UserRole) -> Callable[..., User]:
 
         async def checker(
-            session: AsyncSession, token: str = Depends(oauth2_scheme)
+            session: SessionDependency,
+            request: Request,
+            # token: str = Depends(oauth2_scheme),
         ) -> User:
+            token = self.get_token_from_request(request)
             user = await self.get_current_user(session, token)
             if user.role not in allowed_roles:
                 raise HTTPException(
@@ -65,7 +81,17 @@ class AuthService(BaseService[User, CRUDUser]):
         return self.role_check(UserRole.ADMIN)
 
     def allow_users(self) -> Callable[..., User]:
-        return self.role_check(UserRole.USER, UserRole.ADMIN)
+        return self.role_check(
+            UserRole.USER,
+            UserRole.ADMIN,
+            UserRole.MASTER,
+        )
+
+    def allow_admin_and_master(self) -> Callable[..., User]:
+        return self.role_check(
+            UserRole.ADMIN,
+            UserRole.MASTER,
+        )
 
     async def get_by_username(
         self, session: AsyncSession, username: str
@@ -102,6 +128,12 @@ class AuthService(BaseService[User, CRUDUser]):
             refresh_token,
             httponly=True,
         )
+        response.set_cookie(
+            "access_token",
+            access_token,
+            httponly=True,
+            max_age=self.token_service.access_token_expire_minutes * 60,
+        )
         return Token(access_token=access_token)
 
     async def logout(
@@ -111,17 +143,30 @@ class AuthService(BaseService[User, CRUDUser]):
             refresh_token, session
         )
         response.delete_cookie("refresh_token")
+        response.delete_cookie("access_token")
         await self.token_service.revoke_token(token_data, session)
 
-    @staticmethod
-    def get_refresh_token_from_cookie(request: Request) -> str:
-        token = request.cookies.get("refresh_token")
+    def _get_token_from_cookie(
+        self,
+        request: Request,
+        is_acces_token: bool = False,
+    ) -> str:
+        if is_acces_token:
+            token = request.cookies.get("access_token")
+        else:
+            token = request.cookies.get("refresh_token")
         if not token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Токен не найден",
             )
         return token
+
+    def get_refresh_token_from_cookie(self, request: Request) -> str:
+        return self._get_token_from_cookie(request)
+
+    def get_access_token_from_cookie(self, request: Request) -> str:
+        return self._get_token_from_cookie(request, True)
 
     async def refresh(
         self, session: AsyncSession, request: Request, response: Response
@@ -131,7 +176,17 @@ class AuthService(BaseService[User, CRUDUser]):
             new_access_token,
             new_refresh_token,
         ) = await self.token_service.refresh_tokens(refresh_token, session)
-        response.set_cookie("refresh_token", new_refresh_token, httponly=True)
+        response.set_cookie(
+            "refresh_token",
+            new_refresh_token,
+            httponly=True,
+        )
+        response.set_cookie(
+            "access_token",
+            new_access_token,
+            httponly=True,
+            max_age=self.token_service.access_token_expire_minutes * 60,
+        )
         return Token(access_token=new_access_token)
 
 

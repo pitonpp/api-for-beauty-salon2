@@ -32,6 +32,9 @@ def validate_price(value: Decimal | float | str | int) -> Decimal:
     if isinstance(value, (Decimal, str, int, float)):
         amount = Decimal(str(value))
 
+        if amount > 9999.99:
+            raise ValueError("Значение не может быть больше 9999.99")
+
         if amount < 0:
             raise ValueError("Значение не может быть отрицательным")
 
@@ -58,7 +61,9 @@ def validate_password(password: str) -> str:
 
 
 Price = Annotated[Decimal, AfterValidator(validate_price)]
-Username = Annotated[str, Field(pattern=USERNAME_PATTERN)]
+Username = Annotated[
+    str, Field(pattern=USERNAME_PATTERN, min_length=3, max_length=100)
+]
 Phone = Annotated[str, AfterValidator(validate_phone)]
 FirstAndLastName = Annotated[
     str,

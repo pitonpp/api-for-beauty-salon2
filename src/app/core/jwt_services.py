@@ -139,11 +139,12 @@ class TokenService:
                 detail=INVALID_TOKEN_TYPE,
             )
 
-        if JWT_JTI not in payload:
-            raise InvalidTokenError(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=JWT_JTI_ERROR,
-            )
+        if payload[JWT_TYPE] == JWT_TYPE_REFRESH:
+            if JWT_JTI not in payload:
+                raise InvalidTokenError(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=JWT_JTI_ERROR,
+                )
 
         return TokenData(**payload)
 

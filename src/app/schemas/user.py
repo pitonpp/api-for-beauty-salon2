@@ -37,6 +37,7 @@ class UserShort(BaseModel):
 
 
 class UserDB(UserShort):
+    id: int
     role: UserRole
     created_at: datetime
     is_active: bool

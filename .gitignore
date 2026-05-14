@@ -1,2 +1,6 @@
 .env
 /.venv
+infra/pgdata/
+**/__pycache__/
+*.pyc
+.DS_Store

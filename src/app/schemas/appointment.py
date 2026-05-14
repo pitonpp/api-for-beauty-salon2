@@ -3,6 +3,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.master import MasterShort
+from app.schemas.master_service import MasterServiceShort
+
 from .service import ServiceShort
 from .status_enum import AppointmentStatus
 from .user import UserShort
@@ -21,17 +24,17 @@ class AppointmentBase(BaseModel):
 
 
 class AppointmentCreate(AppointmentBase):
-    model_config = ConfigDict(extra="forbid")
+    pass
 
 
 class AppointmentAdminCreate(AppointmentCreate):
-    service_id: int
+    master_service_id: int
     user_id: int
 
 
 class AppointmentAdminUpdate(AppointmentCreate):
     appointment_time: datetime | None = None
-    service_id: int | None = None
+    master_service_id: int | None = None
     status: AppointmentStatus | None = AppointmentStatus.SCHEDULED
 
 
@@ -43,22 +46,35 @@ class AppointmentUpdate(AppointmentCreate):
     )
 
 
+class AppointmentMasterUpdate(BaseModel):
+    status: Literal[AppointmentStatus.COMPLETED] | None = Field(
+        None, description="Мастер может завершить запись"
+    )
+
+
 class AppointmentShort(AppointmentBase):
+    id: int
     service_name: str
     status: AppointmentStatus
     created_at: datetime
 
+    model_config = ConfigDict(from_attributes=True)
 
-class AppointmentInDB(AppointmentShort):
-    id: int
+
+class AppointmentDB(AppointmentShort):
     client_id: int
-    service_id: int
+    master_service_id: int
 
 
-class AppointmentWithRelations(BaseModel):
+class AppointmentWithRelationsMaster(AppointmentBase):
     id: int
-    appointment_time: datetime
     status: AppointmentStatus
-    client: UserShort
-    service: ServiceShort
+    user: UserShort
+    master_service: MasterServiceShort
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AppointmentWithRelations(AppointmentWithRelationsMaster):
+    master: MasterShort

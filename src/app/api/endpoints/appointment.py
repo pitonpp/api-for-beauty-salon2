@@ -1,23 +1,31 @@
 from fastapi import APIRouter
 
-from app.api.dependencies import AllowUserDI, AppointmentServiceDI, SessionDI
-from app.models.appointment import Appointment
-from app.schemas.appointment import AppointmentCreate, AppointmentShort
+from app.api.dependencies import (
+    AllowUserDI,
+    AppointmentServiceDI,
+    SessionDI,
+    to_schema,
+)
+from app.schemas.appointment import (
+    AppointmentCreate,
+    AppointmentShort,
+)
 
 router = APIRouter()
 
 
-@router.post("{service_id}/appointments", response_model=AppointmentShort)
+@router.post("/{master_service_id}", response_model=AppointmentShort)
 async def create_appointment(
+    master_service_id: int,
     session: SessionDI,
     appointment_service: AppointmentServiceDI,
     user: AllowUserDI,
     request: AppointmentCreate,
-    service_id: int,
-) -> Appointment:
-    return await appointment_service.create_appointment(
+) -> AppointmentShort:
+    appointment = await appointment_service.create_appointment(
         request,
         session,
         user,
-        service_id,
+        master_service_id,
     )
+    return to_schema(appointment, AppointmentShort)

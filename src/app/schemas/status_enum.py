@@ -9,4 +9,5 @@ class AppointmentStatus(StrEnum):
 
 class UserRole(StrEnum):
     ADMIN = "admin"
+    MASTER = "master"
     USER = "user"

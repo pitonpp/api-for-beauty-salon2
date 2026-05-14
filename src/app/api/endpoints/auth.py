@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.schemas.user import Token
-from ..dependencies import AuthServiceDI, SessionDI, AllowUserDI
 
+from ..dependencies import AllowUserDI, AuthServiceDI, SessionDI
 
 router = APIRouter()
 
@@ -38,6 +38,6 @@ async def refresh(
     auth_service: AuthServiceDI,
     response: Response,
     request: Request,
-    _: AllowUserDI,
+    # _: AllowUserDI,
 ) -> Token:
     return await auth_service.refresh(session, request, response)

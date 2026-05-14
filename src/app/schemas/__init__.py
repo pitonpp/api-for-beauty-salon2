@@ -1,10 +1,10 @@
 from .appointment import (  # noqa
     AppointmentCreate,
-    AppointmentInDB,
+    AppointmentDB,
     AppointmentUpdate,
     AppointmentWithRelations,
 )
-from .service import ServiceCreate, ServiceDB, ServiceShort, ServiceUpdate  # noqa
+from .service import ServiceCreate, ServiceShort, ServiceUpdate  # noqa
 from .user import (  # noqa
     Token,
     TokenData,
