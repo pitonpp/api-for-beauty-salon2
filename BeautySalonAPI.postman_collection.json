@@ -1,0 +1,1320 @@
+{
+  "info": {
+    "name": "Beauty Salon API",
+    "description": "Коллекция для тестирования эндпоинтов Beauty Salon API (FastAPI).\n\nПеред началом укажите актуальные учётные данные в переменных коллекции и выполните запрос логина для нужной роли.\n\nПеременные:\n- base_url — адрес сервера (по умолчанию http://localhost:8000)\n- access_token — токен авторизации (автоматически сохраняется после логина)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_username",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "admin_password",
+      "value": "Strongadmin123",
+      "type": "string"
+    },
+    {
+      "key": "user_username",
+      "value": "user",
+      "type": "string"
+    },
+    {
+      "key": "user_password",
+      "value": "Strognuser123",
+      "type": "string"
+    },
+    {
+      "key": "master_username",
+      "value": "master",
+      "type": "string"
+    },
+    {
+      "key": "master_password",
+      "value": "Strongmaster123",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "master_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "service_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "appointment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "master_service_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{admin_username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{admin_password}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Авторизация администратора. OAuth2 Password Flow.\nСохраняет access_token в переменную коллекции."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "    console.log('Access token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (User)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{user_username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{user_password}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Авторизация обычного пользователя."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "    console.log('Access token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Master)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{master_username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{master_password}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Авторизация мастера."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "    console.log('Access token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Выход из системы. Требуется access token. Refresh token берётся из cookie."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Обновление access token. Требуется httpOnly cookie с refresh_token (автоматически сохраняется Postman при логине, если сервер выставляет Set-Cookie)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', jsonData.access_token);",
+                  "    console.log('Access token refreshed');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+79991234567\",\n  \"username\": \"Ivan123\",\n  \"first_name\": \"Иван\",\n  \"last_name\": \"Иванов\",\n  \"password\": \"Password1\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/sign_up",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "sign_up"
+              ]
+            },
+            "description": "Регистрация нового пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "Получить данные текущего авторизованного пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Пётр\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "Обновить данные текущего пользователя. Все поля опциональны."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/me/appointments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "appointments"
+              ]
+            },
+            "description": "Получить список записей текущего пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Appointment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/me/appointments/{{appointment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "appointments",
+                "{{appointment_id}}"
+              ]
+            },
+            "description": "Получить конкретную запись текущего пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Appointment (Cancel)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Отмененная\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me/appointments/{{appointment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "appointments",
+                "{{appointment_id}}"
+              ]
+            },
+            "description": "Отменить запись пользователя. Пользователь может только отменить запись (status = 'Отмененная')."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters",
+      "item": [
+        {
+          "name": "Get All Masters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/masters/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                ""
+              ]
+            },
+            "description": "Получить список всех мастеров (публичный эндпоинт)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/masters/{{master_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "{{master_id}}"
+              ]
+            },
+            "description": "Получить данные мастера по ID (публичный эндпоинт)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/masters/{{master_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "{{master_id}}",
+                "services"
+              ]
+            },
+            "description": "Получить список услуг мастера (публичный эндпоинт)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master Service by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/masters/{{master_id}}/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "{{master_id}}",
+                "services",
+                "{{service_id}}"
+              ]
+            },
+            "description": "Получить конкретную услугу мастера (публичный эндпоинт)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Master Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "me"
+              ]
+            },
+            "description": "Получить профиль текущего мастера. Требуется роль master или admin."
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Master Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Новое описание профиля мастера\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "me"
+              ]
+            },
+            "description": "Обновить профиль текущего мастера."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/me/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "me",
+                "services"
+              ]
+            },
+            "description": "Получить свои услуги (для мастера)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create My Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"price\": 1500,\n  \"description\": \"Стрижка мужская классическая\",\n  \"duration\": \"01:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/me/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "me",
+                "services"
+              ]
+            },
+            "description": "Создать услугу для текущего мастера."
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Service",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1800,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/me/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "me",
+                "services",
+                "{{service_id}}"
+              ]
+            },
+            "description": "Обновить свою услугу."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "Get All Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services",
+                ""
+              ]
+            },
+            "description": "Получить список всех услуг (публичный эндпоинт)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Service by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services",
+                "{{service_id}}"
+              ]
+            },
+            "description": "Получить услугу по ID (публичный эндпоинт)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_time\": \"2025-06-15T14:30:00+00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/appointments/{{master_service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "appointments",
+                "{{master_service_id}}",
+                ""
+              ]
+            },
+            "description": "Создать запись на услугу мастера. Требуется авторизация пользователя."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/appointments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "appointments"
+              ]
+            },
+            "description": "Получить все записи (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/appointments/{{appointment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "appointments",
+                "{{appointment_id}}"
+              ]
+            },
+            "description": "Получить запись по ID (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_time\": \"2025-06-15T14:30:00+00:00\",\n  \"master_service_id\": 1,\n  \"user_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/appointments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "appointments"
+              ]
+            },
+            "description": "Создать запись от имени администратора."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_time\": \"2025-06-16T10:00:00+00:00\",\n  \"status\": \"Запланированная\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/appointments/{{appointment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "appointments",
+                "{{appointment_id}}"
+              ]
+            },
+            "description": "Обновить запись (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Новая услуга\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "services"
+              ]
+            },
+            "description": "Создать новую услугу (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Обновлённая услуга\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "services",
+                "{{service_id}}"
+              ]
+            },
+            "description": "Обновить услугу (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            },
+            "description": "Получить список всех пользователей (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "description": "Получить пользователя по ID (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"АдминскоеИмя\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
+            },
+            "description": "Обновить пользователя (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Masters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/masters",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters"
+              ]
+            },
+            "description": "Получить список всех мастеров (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/masters/{{master_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters",
+                "{{master_id}}"
+              ]
+            },
+            "description": "Получить мастера по ID (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Master",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 3,\n  \"bio\": \"Опытный мастер\",\n  \"experience\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/masters",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters"
+              ]
+            },
+            "description": "Создать профиль мастера (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Master",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Обновлённое описание\",\n  \"experience\": 7\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/masters/{{master_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters",
+                "{{master_id}}"
+              ]
+            },
+            "description": "Обновить профиль мастера (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master Services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/masters/{{master_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters",
+                "{{master_id}}",
+                "services"
+              ]
+            },
+            "description": "Получить услуги мастера (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master Service by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/masters/{{master_id}}/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters",
+                "{{master_id}}",
+                "services",
+                "{{service_id}}"
+              ]
+            },
+            "description": "Получить услугу мастера по ID (только для admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Master Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"master_id\": {{master_id}},\n  \"price\": 2000,\n  \"description\": \"Описание услуги\",\n  \"duration\": \"02:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/masters/{{master_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters",
+                "{{master_id}}",
+                "services"
+              ]
+            },
+            "description": "Создать услугу для мастера от имени администратора."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Master Service",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 2500,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/masters/{{master_id}}/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "masters",
+                "{{master_id}}",
+                "services",
+                "{{service_id}}"
+              ]
+            },
+            "description": "Обновить услугу мастера (только для admin)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

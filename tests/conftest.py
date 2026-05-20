@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.db import Base, get_async_session
 from app.crud.user import user_crud
-from app.main import app
+from main import app
 from app.models.user import User
 from app.schemas.status_enum import UserRole
 from app.schemas.user import UserCreate

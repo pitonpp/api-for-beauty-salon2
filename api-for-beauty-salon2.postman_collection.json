@@ -1,0 +1,976 @@
+{
+  "info": {
+    "name": "Beauty Salon API",
+    "description": "Коллекция для тестирования эндпоинтов API салона красоты\n\n## Авторизация\n",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('token', pm.response.json().access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "admin", "description": "Username администратора" },
+                { "key": "password", "value": "Strongadmin123", "description": "Пароль администратора" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login as Master",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('token', pm.response.json().access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "master", "description": "Username мастера" },
+                { "key": "password", "value": "Strongmaster123", "description": "Пароль мастера" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login as User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('token', pm.response.json().access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "user", "description": "Username пользователя" },
+                { "key": "password", "value": "Stronguser123", "description": "Пароль пользователя" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('token', pm.response.json().access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/users/sign_up",
+              "host": ["{{base_url}}"],
+              "path": ["users", "sign_up"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+79161234567\",\n  \"username\": \"johndoe\",\n  \"first_name\": \"Иван\",\n  \"last_name\": \"Иванов\",\n  \"password\": \"StrongPass1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Петр\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Appointments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/me/appointments",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me", "appointments"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get My Appointment",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/me/appointments/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me", "appointments", "1"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Cancel My Appointment",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/users/me/appointments/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "me", "appointments", "1"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Отмененная\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Masters (Public)",
+      "item": [
+        {
+          "name": "List Masters",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters",
+              "host": ["{{base_url}}"],
+              "path": ["masters"]
+            }
+          }
+        },
+        {
+          "name": "Get Master",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/1",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "1"]
+            }
+          }
+        },
+        {
+          "name": "List Master Services",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/1/services",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "1", "services"]
+            }
+          }
+        },
+        {
+          "name": "Get Master Service",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/1/services/1",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "1", "services", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Masters (My Profile)",
+      "item": [
+        {
+          "name": "Get My Master Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/me",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Update My Master Profile",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/masters/me",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Мастер-парикмахер с 5-летним опытом\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create My Service",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/masters/me/services",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me", "services"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"price\": 1500.00,\n  \"description\": \"Стрижка женская\",\n  \"duration\": 3600\n}"
+            }
+          }
+        },
+        {
+          "name": "List My Services",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/me/services",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me", "services"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Update My Service",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/masters/me/services/1",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me", "services", "1"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 2000.00,\n  \"is_active\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "List My Appointments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/me/appointments",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me", "appointments"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get My Appointment",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/masters/me/appointments/1",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me", "appointments", "1"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Complete Appointment",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/masters/me/appointments/1",
+              "host": ["{{base_url}}"],
+              "path": ["masters", "me", "appointments", "1"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Выполненная\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services (Public)",
+      "item": [
+        {
+          "name": "List Services",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/services",
+              "host": ["{{base_url}}"],
+              "path": ["services"]
+            }
+          }
+        },
+        {
+          "name": "Get Service",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/services/1",
+              "host": ["{{base_url}}"],
+              "path": ["services", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments (User)",
+      "item": [
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/appointments/1",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "1"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_time\": \"2026-05-11T15:00:00+03:00\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Appointments",
+          "item": [
+            {
+              "name": "List All Appointments",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/appointments",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "appointments"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Appointment",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/appointments/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "appointments", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Appointment",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{base_url}}/admin/appointments",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "appointments"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"appointment_time\": \"2026-05-11T15:00:00+03:00\",\n  \"master_service_id\": 1,\n  \"user_id\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Appointment",
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{base_url}}/admin/appointments/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "appointments", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"appointment_time\": \"2026-05-12T14:00:00+03:00\",\n  \"status\": \"Запланированная\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Services",
+          "item": [
+            {
+              "name": "Create Service",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{base_url}}/admin/services",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "services"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Стрижка\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Service",
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{base_url}}/admin/services/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "services", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Стрижка женская\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "List Users",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/users",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "users"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get User",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/users/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "users", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{base_url}}/admin/users/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "users", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"is_active\": false\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Masters",
+          "item": [
+            {
+              "name": "List All Masters",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Master",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Master",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_id\": 2,\n  \"bio\": \"Опытный парикмахер\",\n  \"experience\": 5\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Master",
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"experience\": 6,\n  \"bio\": \"Парикмахер-стилист\"\n}"
+                }
+              }
+            },
+            {
+              "name": "List Master Services",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters/1/services",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters", "1", "services"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Master Service",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters/1/services/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters", "1", "services", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Master Service",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters/1/services",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters", "1", "services"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 1,\n  \"price\": 1500.00,\n  \"description\": \"Стрижка женская\",\n  \"duration\": 3600,\n  \"master_id\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Master Service",
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{base_url}}/admin/masters/1/services/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "masters", "1", "services", "1"]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"price\": 2000.00,\n  \"is_active\": true\n}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

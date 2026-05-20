@@ -1,0 +1,23 @@
+ENCODING = "utf-8"
+
+JWT_EXP = "exp"
+JWT_TYPE = "type"
+JWT_TYPE_ACCESS = "access"
+JWT_TYPE_REFRESH = "refresh"
+JWT_USER_ID = "user_id"
+JWT_JTI = "jti"
+
+TOKEN_EXPIRED = "Токен истек"
+INVALID_TOKEN = "Невалидный токен"
+JWT_USER_ID_ERROR = "Отсутствует user_id"
+INVALID_TOKEN_TYPE = "Неверный тип токена"
+JWT_JTI_ERROR = "Отсутствует jti токена"
+TOKEN_NOT_FOUND = "Токен не найден"
+TOKEN_REVOKED = "Токен отозван"
+INVALID_HASH_TOKEN = "Невалидный хэш токена"
+ACTIVE_TOKEN_NOT_FOUND = "Активный токен не найден"
+
+DESCRIPTION_PATTERN = r"^[\s\S]{1,500}$"
+FIRST_AND_LAST_NAME_PATTERN = r"^[А-ЯЁ][а-яё]+$"
+USERNAME_PATTERN = r"^[A-Za-z][A-Za-z0-9_]+$"
+PHONE_PATTERN = r"^(\+7|8)9\d{9}$"
