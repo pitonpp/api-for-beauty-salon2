@@ -1,3 +1,5 @@
+"""Pydantic-схемы для записей (создание, обновление, отображение)."""
+
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 

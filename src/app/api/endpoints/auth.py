@@ -1,3 +1,5 @@
+"""Endpoint'ы аутентификации: логин, логаут, refresh токенов."""
+
 from fastapi import APIRouter, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 

@@ -16,6 +16,7 @@ from app.core.db import Base, CommonBaseMixin
 
 
 class MasterService(CommonBaseMixin, Base):
+    """Связь мастера и услуги: цена, описание, длительность."""
     master_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("master.id"),

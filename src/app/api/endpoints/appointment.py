@@ -1,3 +1,5 @@
+"""Endpoint'ы для создания записей клиентами."""
+
 from fastapi import APIRouter
 
 from app.api.dependencies import (

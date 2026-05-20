@@ -1,9 +1,11 @@
 from typing import Any
 
 from fastapi import HTTPException, status
+from loguru import logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.constants import SELF_DEACTIVATE
 from app.crud.user import CRUDUser, user_crud
 from app.models.user import User
 from app.schemas import UserCreate, UserUpdate, UserUpdateAdmin
@@ -13,13 +15,18 @@ from .password import hash_password
 
 
 class UserService(BaseService[User, CRUDUser]):
+    """Сервис для управления пользователями."""
+
     model = User
 
     def __init__(self, crud: CRUDUser) -> None:
         super().__init__(crud)
 
     def _add_password_hash(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Хэширует пароль в переданных данных, если он указан."""
+
         if "password" not in data or data["password"] is None:
+            logger.info("Пароль не указан, пропускаем добавление пароля")
             return data
 
         data = data.copy()
@@ -29,11 +36,20 @@ class UserService(BaseService[User, CRUDUser]):
     async def create_user(
         self, session: AsyncSession, request: UserCreate
     ) -> User:
+        """Создаёт нового пользователя с хэшированным паролем."""
+
         try:
             request_data = request.model_dump()
             request_data = self._add_password_hash(request_data)
 
-            return await self.crud.create(request_data, session)
+            user = await self.crud.create(request_data, session)
+            logger.info(
+                "Создан пользователь user_id={} username={} email={}",
+                user.id,
+                request.username,
+                request.email,
+            )
+            return user
 
         except IntegrityError as e:
             await session.rollback()
@@ -46,6 +62,8 @@ class UserService(BaseService[User, CRUDUser]):
         request: UserUpdate | UserUpdateAdmin,
         current_user: User | None = None,
     ) -> User:
+        """Обновляет пользователя (админ не может деактивировать себя)."""
+
         try:
             user_to_update = await self.get_object_or_404(user_id, session)
             update_data = request.model_dump(exclude_unset=True)
@@ -57,9 +75,14 @@ class UserService(BaseService[User, CRUDUser]):
                     user_to_update, current_user, request
                 )
 
-            return await self.crud.update(
+            updated_user = await self.crud.update(
                 user_to_update, update_data, session
             )
+            logger.info(
+                "Обновлен пользователь user_id={}",
+                user_id,
+            )
+            return updated_user
 
         except IntegrityError as e:
             await session.rollback()
@@ -71,13 +94,19 @@ class UserService(BaseService[User, CRUDUser]):
         current_user: User,
         user_update_schema: UserUpdateAdmin,
     ) -> None:
+        """Проверяет, что админ не пытается деактивировать сам себя."""
+
         if (
             user_to_update.id == current_user.id
             and user_update_schema.is_active is False
         ):
+            logger.warning(
+                "Админ user_id={} пытался деактивировать себя",
+                current_user.id,
+            )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Админ не может деактивировать сам себя",
+                detail=SELF_DEACTIVATE,
             )
 
     async def get_users(
@@ -85,6 +114,8 @@ class UserService(BaseService[User, CRUDUser]):
         session: AsyncSession,
         **filters,
     ) -> list[User]:
+        """Возвращает список пользователей с опциональной фильтрацией."""
+
         if filters:
             return await self.crud.get_multi(session, **filters)
         return await self.crud.get_multi(session)

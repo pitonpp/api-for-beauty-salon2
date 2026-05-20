@@ -200,7 +200,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone\": \"+79161234567\",\n  \"username\": \"johndoe\",\n  \"first_name\": \"Иван\",\n  \"last_name\": \"Иванов\",\n  \"password\": \"StrongPass1\"\n}"
+              "raw": "{\n  \"phone\": \"+79161234567\",\n  \"username\": \"johndoe\",\n  \"email\": \"johndoe@example.com\",\n  \"first_name\": \"Иван\",\n  \"last_name\": \"Иванов\",\n  \"password\": \"StrongPass1\"\n}"
             }
           }
         },
@@ -242,7 +242,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"first_name\": \"Петр\"\n}"
+              "raw": "{\n  \"first_name\": \"Петр\",\n  \"phone\": \"+79261234567\"\n}"
             }
           }
         },
@@ -580,7 +580,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"appointment_time\": \"2026-05-11T15:00:00+03:00\"\n}"
+              "raw": "{\n  \"appointment_time\": \"2026-06-01T15:00:00+03:00\"\n}"
             }
           }
         }
@@ -647,7 +647,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"appointment_time\": \"2026-05-11T15:00:00+03:00\",\n  \"master_service_id\": 1,\n  \"user_id\": 1\n}"
+                  "raw": "{\n  \"appointment_time\": \"2026-06-01T15:00:00+03:00\",\n  \"master_service_id\": 1,\n  \"user_id\": 1\n}"
                 }
               }
             },
@@ -672,7 +672,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"appointment_time\": \"2026-05-12T14:00:00+03:00\",\n  \"status\": \"Запланированная\"\n}"
+                  "raw": "{\n  \"appointment_time\": \"2026-06-02T14:00:00+03:00\",\n  \"status\": \"Запланированная\"\n}"
                 }
               }
             }
@@ -702,7 +702,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"Стрижка\"\n}"
+                  "raw": "{\n  \"name\": \"Стрижка женская\"\n}"
                 }
               }
             },
@@ -727,7 +727,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"Стрижка женская\"\n}"
+                  "raw": "{\n  \"name\": \"Стрижка\"\n}"
                 }
               }
             }
@@ -791,7 +791,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"is_active\": false\n}"
+                  "raw": "{\n  \"is_active\": true\n}"
                 }
               }
             }
@@ -939,7 +939,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"service_id\": 1,\n  \"price\": 1500.00,\n  \"description\": \"Стрижка женская\",\n  \"duration\": 3600,\n  \"master_id\": 1\n}"
+                  "raw": "{\n  \"service_id\": 1,\n  \"price\": 1500.00,\n  \"description\": \"Стрижка женская\",\n  \"duration\": 3600\n}"
                 }
               }
             },

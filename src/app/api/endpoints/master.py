@@ -1,3 +1,5 @@
+"""Endpoint'ы мастеров: профиль, услуги, записи (публичные и для мастера)."""
+
 from fastapi import APIRouter
 
 from app.api.dependencies import (

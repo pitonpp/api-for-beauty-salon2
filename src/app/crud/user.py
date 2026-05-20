@@ -4,7 +4,7 @@ from app.schemas import UserCreate, UserUpdateAdmin, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate | UserUpdateAdmin]):
-    pass
+    """CRUD для модели User."""
 
 
 user_crud = CRUDUser(User)

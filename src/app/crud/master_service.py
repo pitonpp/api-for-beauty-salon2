@@ -17,6 +17,8 @@ class CRUDMasterService(
         MasterServiceUpdate,
     ]
 ):
+    """CRUD для модели MasterService с подгрузкой service и master."""
+
     def _get_statement(
         self,
         master_id: int,
@@ -24,6 +26,8 @@ class CRUDMasterService(
         limit: int = 10,
         service_id: int | None = None,
     ) -> Select:
+        """Формирует запрос услуг мастера с подгрузкой service/master."""
+
         stmt = (
             select(self.model)
             .options(
@@ -43,6 +47,8 @@ class CRUDMasterService(
         obj: MasterService,
         session: AsyncSession,
     ) -> MasterService:
+        """Перезагружает объект с подгруженными service и master."""
+
         stmt = (
             select(self.model)
             .options(
@@ -61,6 +67,8 @@ class CRUDMasterService(
         master_id: int,
         service_id: int,
     ) -> MasterService | None:
+        """Возвращает услугу мастера по ID мастера и ID услуги."""
+
         stmt = self._get_statement(
             master_id=master_id,
             service_id=service_id,
@@ -75,6 +83,8 @@ class CRUDMasterService(
         skip: int = 0,
         limit: int = 10,
     ) -> list[MasterService]:
+        """Возвращает список услуг мастера."""
+
         stmt = self._get_statement(
             master_id=master_id,
             skip=skip,
@@ -88,6 +98,7 @@ class CRUDMasterService(
         request: MasterServiceCreate | dict,
         session: AsyncSession,
     ) -> MasterService:
+        """Создаёт услугу мастера и возвращает с подгруженными связями."""
         obj = await super().create(request, session)
         return await self._reload_with_relations(obj, session)
 
@@ -97,6 +108,7 @@ class CRUDMasterService(
         request: MasterServiceUpdate | dict,
         session: AsyncSession,
     ) -> MasterService:
+        """Обновляет услугу мастера и возвращает с подгруженными связями."""
         obj = await super().update(db_obj, request, session)
         return await self._reload_with_relations(obj, session)
 

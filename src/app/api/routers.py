@@ -1,3 +1,5 @@
+"""Главный роутер, собирающий все endpoint'ы с префиксами."""
+
 from fastapi import APIRouter
 
 from .endpoints import (

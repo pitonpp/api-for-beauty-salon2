@@ -1,6 +1,8 @@
+"""Pydantic-схемы для пользователей (создание, обновление, отображение)."""
+
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 from .status_enum import UserRole
 from .custom_types import Phone, Password, Username, FirstAndLastName
@@ -9,6 +11,7 @@ from .custom_types import Phone, Password, Username, FirstAndLastName
 class UserCreate(BaseModel):
     phone: Phone
     username: Username
+    email: EmailStr
     first_name: FirstAndLastName
     last_name: FirstAndLastName | None = None
     password: Password
@@ -29,6 +32,7 @@ class TokenData(BaseModel):
 
 class UserShort(BaseModel):
     phone: str
+    email: str
     username: str
     first_name: str
     last_name: str | None = None
@@ -48,6 +52,7 @@ class UserUpdate(UserCreate):
     last_name: FirstAndLastName | None = None
     password: Password | None = None
     phone: Phone | None = None
+    email: EmailStr | None = None
     username: Username | None = None
 
 

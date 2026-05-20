@@ -1,3 +1,5 @@
+"""DI-зависимости для FastAPI: сессии, сервисы, проверка ролей, конвертеры."""
+
 from typing import Annotated, Type
 
 from fastapi import Depends
@@ -42,10 +44,12 @@ MasterServiceManagerDI = Annotated[
 
 
 def to_schema(item: ModelType, schema: Type[SchemaType]) -> SchemaType:
+    """Конвертирует модель ORM в Pydantic-схему."""
     return schema.model_validate(item)
 
 
 def to_schema_list(
     items: list[ModelType], schema: Type[SchemaType]
 ) -> list[SchemaType]:
+    """Конвертирует список моделей ORM в список Pydantic-схем."""
     return [schema.model_validate(item) for item in items]

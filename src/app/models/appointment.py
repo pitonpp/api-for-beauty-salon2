@@ -10,6 +10,7 @@ from app.schemas.status_enum import AppointmentStatus
 
 
 class Appointment(CommonBaseMixin, Base):
+    """Модель записи клиента на услугу мастера."""
     client_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("user.id"),

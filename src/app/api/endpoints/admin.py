@@ -1,4 +1,7 @@
+"""Административные endpoint'ы: управление пользователями, мастерами, услугами, записями."""
+
 from fastapi import APIRouter
+
 
 from app.api.dependencies import (
     AllowAdminDI,

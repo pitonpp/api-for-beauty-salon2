@@ -5,6 +5,7 @@ from app.core.db import Base, CommonBaseMixin
 
 
 class Service(CommonBaseMixin, Base):
+    """Модель услуги салона (например, стрижка, маникюр)."""
     name: Mapped[str] = mapped_column(
         String(100),
         unique=True,

@@ -1,3 +1,5 @@
+"""Endpoint'ы пользователя: регистрация, профиль, управление своими записями."""
+
 from fastapi import APIRouter
 
 from app.schemas.appointment import AppointmentShort, AppointmentUpdate

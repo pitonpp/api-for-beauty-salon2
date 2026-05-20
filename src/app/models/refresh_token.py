@@ -16,6 +16,7 @@ from app.core.db import Base, CommonBaseMixin
 
 
 class RefreshToken(CommonBaseMixin, Base):
+    """Модель refresh-токена для управления сессиями."""
     jti: Mapped[uuid.UUID] = mapped_column(
         UUID,
         unique=True,
