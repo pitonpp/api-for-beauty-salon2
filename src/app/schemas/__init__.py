@@ -1,3 +1,5 @@
+"""Импорты схем для удобного доступа."""
+
 from .appointment import (  # noqa
     AppointmentCreate,
     AppointmentDB,

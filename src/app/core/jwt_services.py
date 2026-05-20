@@ -6,6 +6,7 @@ import uuid
 
 from fastapi import HTTPException, status
 from jose import ExpiredSignatureError, JWTError, jwt
+from loguru import logger
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,18 +34,19 @@ from app.schemas.user import TokenData
 
 
 class InvalidTokenError(HTTPException):
-    pass
+    """Ошибка невалидного токена (401)."""
 
 
 class ExpiredTokenError(HTTPException):
-    pass
+    """Ошибка истёкшего токена (401)."""
 
 
 class RevokedTokenError(HTTPException):
-    pass
+    """Ошибка отозванного или отсутствующего токена (401/404)."""
 
 
 class TokenService:
+    """Сервис для создания, проверки и управления JWT-токенами."""
     def __init__(self) -> None:
         self.secret_key = settings.secret_key
         self.refresh_secret_key = settings.refresh_secret_key
@@ -55,6 +57,8 @@ class TokenService:
         self.refresh_token_expire_days = settings.refresh_token_expire_days
 
     def _hash_token(self, token: str) -> str:
+        """Возвращает HMAC-SHA256 хэш токена."""
+
         return hmac.new(
             self.secret_key.encode(
                 ENCODING,
@@ -64,12 +68,16 @@ class TokenService:
         ).hexdigest()
 
     def _verify_token(self, token: str, stored_hash: str) -> bool:
+        """Сравнивает хэш токена с сохранённым (constant-time)."""
+
         new_hash = self._hash_token(token)
         return hmac.compare_digest(new_hash, stored_hash)
 
     async def create_tokens(
         self, data: dict, session: AsyncSession
     ) -> tuple[str, str]:
+        """Создаёт и сохраняет пару access + refresh токенов."""
+
         access_token_data = data.copy()
         refresh_token_data = data.copy()
         now = datetime.now(timezone.utc)
@@ -108,17 +116,26 @@ class TokenService:
 
         session.add(db_token)
         await session.commit()
+        logger.info(
+            "Создана пара токенов для user_id={}, jti={}",
+            refresh_token_data[JWT_USER_ID],
+            str(jti),
+        )
         return access_token, refresh_token
 
     def _decode_token(self, token: str, secret_key: str) -> dict[str, Any]:
+        """Декодирует и проверяет JWT, выбрасывает исключения при ошибках."""
+
         try:
             return jwt.decode(token, secret_key, self.algorithm)
         except ExpiredSignatureError:
+            logger.warning("Токен истёк")
             raise ExpiredTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=TOKEN_EXPIRED,
             )
-        except JWTError:
+        except JWTError as e:
+            logger.warning("Невалидный токен: {}", e)
             raise InvalidTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=INVALID_TOKEN,
@@ -127,13 +144,21 @@ class TokenService:
     def _validate_payload(
         self, payload: dict[str, Any], token_type: str
     ) -> TokenData:
+        """Валидирует payload токена: наличие полей и соответствие типу."""
+
         if JWT_USER_ID not in payload:
+            logger.warning("В токене отсутствует user_id")
             raise InvalidTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=JWT_USER_ID_ERROR,
             )
 
         if JWT_TYPE not in payload or payload[JWT_TYPE] != token_type:
+            logger.warning(
+                "Неверный тип токена: ожидается {}, получен {}",
+                token_type,
+                payload.get(JWT_TYPE),
+            )
             raise InvalidTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=INVALID_TOKEN_TYPE,
@@ -141,49 +166,68 @@ class TokenService:
 
         if payload[JWT_TYPE] == JWT_TYPE_REFRESH:
             if JWT_JTI not in payload:
+                logger.warning("В refresh-токене отсутствует jti")
                 raise InvalidTokenError(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=JWT_JTI_ERROR,
                 )
 
+        logger.info(
+            "Токен {} валиден для user_id={}",
+            token_type,
+            payload[JWT_USER_ID],
+        )
         return TokenData(**payload)
 
     async def _verify_in_db(
         self, refresh_token: str, session: AsyncSession, jti: str
     ) -> None:
+        """Проверяет refresh-токен в БД: существование, срок, отзыв, хэш."""
+
         result = await session.execute(
-            select(RefreshToken).where(RefreshToken.jti == jti)
+            select(RefreshToken).where(RefreshToken.jti == uuid.UUID(jti))
         )
         db_token = result.scalar_one_or_none()
 
         if db_token is None:
+            logger.warning("Refresh-токен jti={} не найден в БД", jti)
             raise RevokedTokenError(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=TOKEN_NOT_FOUND,
             )
 
-        if db_token.expires_at < datetime.now(timezone.utc):
+        expires_at = db_token.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
+            logger.warning("Refresh-токен jti={} истёк", jti)
             raise ExpiredTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=TOKEN_EXPIRED,
             )
 
         if db_token.revoked:
+            logger.warning("Refresh-токен jti={} отозван", jti)
             raise RevokedTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=TOKEN_REVOKED,
             )
 
         if not self._verify_token(refresh_token, db_token.token_hash):
+            logger.warning("Хэш refresh-токена jti={} не совпадает", jti)
             raise InvalidTokenError(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=INVALID_HASH_TOKEN,
             )
 
+        logger.info("Refresh-токен jti={} успешно проверен", jti)
+
     def verify_access_token(
         self,
         access_token: str,
     ):
+        """Проверяет access-токен и возвращает его payload."""
+
         payload = self._decode_token(access_token, self.secret_key)
         return self._validate_payload(payload, JWT_TYPE_ACCESS)
 
@@ -192,6 +236,8 @@ class TokenService:
         refresh_token: str,
         session: AsyncSession,
     ) -> TokenData:
+        """Проверяет refresh-токен (JWT + БД) и возвращает данные."""
+
         token_data = self._decode_token(
             refresh_token, self.refresh_secret_key
         )
@@ -202,6 +248,8 @@ class TokenService:
     async def revoke_all_tokens(
         self, session: AsyncSession, user_id: int
     ) -> None:
+        """Отзывает все активные refresh-токены пользователя."""
+
         result = await session.execute(
             update(RefreshToken)
             .where(
@@ -211,34 +259,50 @@ class TokenService:
             .values(revoked=True)
         )
         await session.commit()
+        logger.info(
+            "Отозвано {} активных токенов для user_id={}",
+            result.rowcount,
+            user_id,
+        )
 
     async def revoke_token(
         self,
         token_data: TokenData,
         session: AsyncSession,
     ) -> None:
+        """Отзывает конкретный refresh-токен по jti."""
+
         result = await session.execute(
             update(RefreshToken)
             .where(
-                RefreshToken.jti == token_data.jti,
+                RefreshToken.jti == uuid.UUID(token_data.jti),
                 RefreshToken.revoked.is_(False),
             )
             .values(revoked=True)
         )
         if result.rowcount == 0:
+            logger.warning("Активный refresh-токен jti={} не найден", token_data.jti)
             raise RevokedTokenError(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=ACTIVE_TOKEN_NOT_FOUND,
             )
+        logger.info("Refresh-токен jti={} отозван", token_data.jti)
         await session.commit()
 
     async def refresh_tokens(
         self, refresh_token: str, session: AsyncSession
     ) -> tuple[str, str]:
+        """Обновляет пару токенов: отзывает старый refresh и создаёт новые."""
+
         token_data = await self.verify_refresh_token(refresh_token, session)
         await self.revoke_token(token_data, session)
         new_access_token, new_refresh_token = await self.create_tokens(
             data={JWT_USER_ID: token_data.user_id}, session=session
+        )
+        logger.info(
+            "Токены обновлены для user_id={} (jti={} → новый)",
+            token_data.user_id,
+            token_data.jti,
         )
         return new_access_token, new_refresh_token
 

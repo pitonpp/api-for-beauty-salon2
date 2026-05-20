@@ -12,7 +12,7 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/18/docker/pgdata
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_NAME"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -20,8 +20,82 @@ services:
     networks:
       - backend
 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    env_file:
+      - ./.env
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST}"
+    ports:
+    - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+    - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - backend
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: beauty_salon_api:latest
+    command: >
+      sh -c "
+      alembic upgrade head &&
+      uvicorn src.main:app --host 0.0.0.0 --port ${APP_PORT} --reload --log-level info
+      "
+    env_file:
+    - ./.env
+    environment:
+      PYTHONPATH: /app/src
+      POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
+      RABBITMQ_HOST: ${DOCKER_RABBITMQ_HOST}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    volumes:
+      - ../src:/app/src
+    networks:
+      - backend
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: beauty_salon_api_celery:latest
+    command: celery -A celery_app.worker worker -l info
+    env_file:
+      - ./.env
+    environment:
+      PYTHONPATH: /app/src
+      POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
+      RABBITMQ_HOST: ${DOCKER_RABBITMQ_HOST}
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - backend
+    restart: unless-stopped
+
+
 volumes:
   pgdata:
+  rabbitmq_data:
 
 networks:
   backend:

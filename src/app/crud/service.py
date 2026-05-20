@@ -4,7 +4,7 @@ from app.schemas import ServiceCreate, ServiceUpdate
 
 
 class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
-    pass
+    """CRUD для модели Service."""
 
 
 service_crud = CRUDService(Service)

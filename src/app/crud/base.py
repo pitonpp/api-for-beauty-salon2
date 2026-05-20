@@ -8,6 +8,8 @@ from app.core.types import CreateSchemaType, ModelType, UpdateSchemaType
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+    """Базовый CRUD-класс с типовыми операциями create/read/update/delete."""
+
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
@@ -16,6 +18,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_id: int,
         session: AsyncSession,
     ) -> ModelType | None:
+        """Возвращает объект по ID или None."""
         return await session.get(self.model, obj_id)
 
     async def get_one_by(
@@ -23,6 +26,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         **kwargs,
     ) -> ModelType | None:
+        """Возвращает первый объект, соответствующий фильтрам, или None."""
         stmt = select(self.model).filter_by(**kwargs)
         db_obj = await session.execute(stmt)
         return db_obj.scalar_one_or_none()
@@ -34,6 +38,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         limit: int = 10,
         **filters,
     ) -> list[ModelType]:
+        """Возвращает список объектов с пагинацией и фильтрацией."""
         stmt = select(self.model)
 
         if filters:
@@ -49,6 +54,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         request: CreateSchemaType | dict[str, Any],
         session: AsyncSession,
     ) -> ModelType:
+        """Создаёт новый объект в БД."""
+
         if isinstance(request, dict):
             request_data = request
         else:
@@ -66,6 +73,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         request: UpdateSchemaType | dict[str, Any],
         session: AsyncSession,
     ) -> ModelType:
+        """Обновляет объект: только переданные поля (exclude_unset)."""
+
         if isinstance(request, dict):
             update_data = request
         else:
@@ -83,6 +92,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def delete(
         self, db_obj: ModelType, session: AsyncSession
     ) -> ModelType:
+        """Удаляет объект из БД."""
+
         await session.delete(db_obj)
         await session.commit()
         return db_obj

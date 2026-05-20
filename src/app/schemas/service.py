@@ -1,3 +1,5 @@
+"""Pydantic-схемы для услуг салона."""
+
 from pydantic import BaseModel, ConfigDict
 
 from .custom_types import Name

@@ -1,3 +1,5 @@
+"""Кастомные Pydantic-типы с валидацией (телефон, пароль, цена и т.д.)."""
+
 import re
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Annotated
@@ -6,29 +8,21 @@ from pydantic import AfterValidator, Field
 
 from app.constants import (
     DESCRIPTION_PATTERN,
+    FIRST_AND_LAST_NAME_PATTERN,
+    NAME_PATTERN,
+    PASSWORD_PATTERN,
     PHONE_PATTERN,
     USERNAME_PATTERN,
-    FIRST_AND_LAST_NAME_PATTERN,
 )
 
-PASSWORD_PATTERN = re.compile(
-    r"^"
-    r"(?=.*[A-Z])"
-    r"(?=.*[a-z])"
-    r"(?=.*\d)"
-    r"\S{6,}$",
-)
+PASSWORD_PATTERN_RE = re.compile(PASSWORD_PATTERN)
 
-NAME_PATTERN = re.compile(
-    r"^"
-    r"(?:[а-яА-ЯёЁ]+(?:[ -][а-яА-ЯёЁ]+)*"
-    r"|"
-    r"[A-Za-z]+(?:[ -][A-Za-z]+)*)"
-    r"$",
-)
+NAME_PATTERN_RE = re.compile(NAME_PATTERN)
 
 
 def validate_price(value: Decimal | float | str | int) -> Decimal:
+    """Валидирует цену: от 0 до 9999.99 с округлением до 2 знаков."""
+
     if isinstance(value, (Decimal, str, int, float)):
         amount = Decimal(str(value))
 
@@ -42,6 +36,8 @@ def validate_price(value: Decimal | float | str | int) -> Decimal:
 
 
 def validate_phone(phone_number: str) -> str:
+    """Валидирует номер телефона: +7 или 8, затем 10 цифр."""
+
     if not re.fullmatch(PHONE_PATTERN, phone_number):
         raise ValueError("Неверный формат номера телефона")
     return (
@@ -52,7 +48,9 @@ def validate_phone(phone_number: str) -> str:
 
 
 def validate_password(password: str) -> str:
-    if PASSWORD_PATTERN.fullmatch(password) is None:
+    """Валидирует пароль: заглавная, строчная, цифра, минимум 6 символов."""
+
+    if PASSWORD_PATTERN_RE.fullmatch(password) is None:
         raise ValueError(
             "Пароль должен содержать минимум  одну заглавную букву, "
             "одну строчную букву и одну цифру",
@@ -70,7 +68,7 @@ FirstAndLastName = Annotated[
     Field(pattern=FIRST_AND_LAST_NAME_PATTERN, min_length=1, max_length=100),
 ]
 Name = Annotated[
-    str, Field(pattern=NAME_PATTERN.pattern, min_length=1, max_length=100)
+    str, Field(pattern=NAME_PATTERN, min_length=1, max_length=100)
 ]
 Password = Annotated[str, AfterValidator(validate_password)]
 Description = Annotated[str, Field(pattern=DESCRIPTION_PATTERN)]

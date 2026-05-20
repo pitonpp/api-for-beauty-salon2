@@ -19,6 +19,8 @@ class CRUDAppointment(
         AppointmentUpdate | AppointmentAdminUpdate | AppointmentMasterUpdate,
     ]
 ):
+    """CRUD для модели Appointment с подгрузкой связанных сущностей."""
+
     def _get_statement(
         self,
         appointment_id: int | None = None,
@@ -26,10 +28,15 @@ class CRUDAppointment(
         limit: int = 10,
         skip: int = 0,
     ) -> Select:
+        """Формирует запрос с загрузкой user, service, master."""
+
         options = [
             selectinload(self.model.user),
             selectinload(self.model.master_service).selectinload(
                 MasterService.service
+            ),
+            selectinload(self.model.master_service).selectinload(
+                MasterService.master
             ),
         ]
         if multi:
@@ -54,12 +61,18 @@ class CRUDAppointment(
         multi: bool = False,
         obj_id: int | None = None,
     ) -> Select:
+        """Формирует запрос записей конкретного пользователя."""
+
         stmt = (
             select(self.model)
             .options(
                 selectinload(self.model.master_service).selectinload(
                     MasterService.service
-                )
+                ),
+                selectinload(self.model.master_service).selectinload(
+                    MasterService.master
+                ),
+                selectinload(self.model.user),
             )
             .where(self.model.client_id == user_id)
         )
@@ -75,6 +88,8 @@ class CRUDAppointment(
         multi: bool = False,
         obj_id: int | None = None,
     ) -> Select:
+        """Формирует запрос записей конкретного мастера (по его услугам)."""
+
         master_service_ids = select(MasterService.id).where(
             MasterService.master_id == master_id,
         )
@@ -83,6 +98,9 @@ class CRUDAppointment(
             .options(
                 selectinload(self.model.master_service).selectinload(
                     MasterService.service
+                ),
+                selectinload(self.model.master_service).selectinload(
+                    MasterService.master
                 ),
                 selectinload(self.model.user),
             )
@@ -95,11 +113,16 @@ class CRUDAppointment(
     async def _reload_with_relations(
         self, session: AsyncSession, obj: Appointment
     ) -> Appointment:
+        """Перезагружает объект с подгруженными связанными сущностями."""
+
         stmt = (
             select(self.model)
             .options(
                 selectinload(self.model.master_service).selectinload(
                     MasterService.service
+                ),
+                selectinload(self.model.master_service).selectinload(
+                    MasterService.master
                 ),
                 selectinload(self.model.user),
             )
@@ -113,6 +136,7 @@ class CRUDAppointment(
         request: AppointmentCreate | dict,
         session: AsyncSession,
     ) -> Appointment:
+        """Создаёт запись и возвращает с подгруженными связями."""
         return await self._reload_with_relations(
             session, await super().create(request, session)
         )
@@ -126,6 +150,7 @@ class CRUDAppointment(
         | dict,
         session: AsyncSession,
     ) -> Appointment:
+        """Обновляет запись и возвращает с подгруженными связями."""
         return await self._reload_with_relations(
             session, await super().update(db_obj, request, session)
         )
@@ -133,6 +158,7 @@ class CRUDAppointment(
     async def get_with_relations(
         self, session: AsyncSession, obj_id: int
     ) -> Appointment | None:
+        """Возвращает запись с пользователем, услугой и мастером."""
         stmt = self._get_statement(appointment_id=obj_id)
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
@@ -140,6 +166,8 @@ class CRUDAppointment(
     async def get_multi_with_relations(
         self, session: AsyncSession, skip: int = 0, limit: int = 10
     ) -> list[Appointment]:
+        """Возвращает список записей со всеми связанными данными."""
+
         stmt = self._get_statement(limit=limit, skip=skip, multi=True)
         result = await session.execute(stmt)
         return result.scalars().all()
@@ -151,6 +179,8 @@ class CRUDAppointment(
         skip: int = 0,
         limit: int = 10,
     ) -> list[Appointment]:
+        """Возвращает записи пользователя со связанными данными."""
+
         stmt = self._get_statement_for_user(
             user_id=user_id, skip=skip, limit=limit, multi=True
         )
@@ -163,6 +193,8 @@ class CRUDAppointment(
         user_id: int,
         appointment_id: int,
     ) -> Appointment | None:
+        """Возвращает конкретную запись пользователя со связанными данными."""
+
         stmt = self._get_statement_for_user(
             user_id=user_id,
             obj_id=appointment_id,
@@ -177,6 +209,8 @@ class CRUDAppointment(
         skip: int = 0,
         limit: int = 10,
     ) -> list[Appointment]:
+        """Возвращает записи мастера со связанными данными."""
+
         stmt = self._get_statement_for_master(
             master_id=master_id,
             skip=skip,
@@ -192,6 +226,8 @@ class CRUDAppointment(
         master_id: int,
         appointment_id: int,
     ) -> Appointment | None:
+        """Возвращает конкретную запись мастера со связанными данными."""
+
         stmt = self._get_statement_for_master(
             master_id=master_id, obj_id=appointment_id
         )
@@ -205,6 +241,8 @@ class CRUDAppointment(
         skip: int = 0,
         **filter_by,
     ) -> list[Appointment]:
+        """Возвращает записи мастера с дополнительными фильтрами (например, по статусу)."""
+
         stmt = self._get_statement_for_master(
             master_id=master_id,
             skip=skip,

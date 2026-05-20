@@ -5,6 +5,7 @@ from app.core.db import Base, CommonBaseMixin
 
 
 class Master(CommonBaseMixin, Base):
+    """Модель мастера с информацией об опыте и биографии."""
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("user.id"),

@@ -6,6 +6,7 @@ from app.schemas.status_enum import UserRole
 
 
 class User(CommonBaseMixin, Base):
+    """Модель пользователя (клиент, мастер, администратор)."""
     phone: Mapped[str] = mapped_column(
         String(12),
         unique=True,
@@ -17,6 +18,12 @@ class User(CommonBaseMixin, Base):
         unique=True,
         nullable=False,
         comment="Уникальное имя пользователя (логин)",
+    )
+    email: Mapped[str] = mapped_column(
+        String(200),
+        unique=True,
+        nullable=False,
+        index=True,
     )
     first_name: Mapped[str] = mapped_column(
         String(100),

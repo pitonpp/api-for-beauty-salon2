@@ -1,6 +1,24 @@
-.env
-/.venv
 infra/pgdata/
-**/__pycache__/
-*.pyc
 .DS_Store
+logs/
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.pyc
+
+# Файлы IDE
+.vscode/
+.idea/
+
+# Секреты и конфиги
+.env
+config/local.py
+
+# Артефакты сборки
+dist/
+build/
+*.egg-info/

@@ -1,3 +1,5 @@
+"""Публичные endpoint'ы для просмотра услуг салона."""
+
 from fastapi import APIRouter
 
 from app.schemas.service import (

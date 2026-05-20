@@ -1,3 +1,5 @@
+"""Pydantic-схемы для мастеров."""
+
 from pydantic import BaseModel, ConfigDict, PositiveInt
 
 from .custom_types import Description

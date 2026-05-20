@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, TypeVar
 
 from pydantic import BaseModel
 
+"""Типы-дженерики для CRUD и сервисного слоя."""
+
 if TYPE_CHECKING:
     from app.core.db import Base
     from app.crud.base import CRUDBase

@@ -17,10 +17,11 @@ from app.core.config import settings
 
 
 class Base(DeclarativeBase):
-    pass
+    """Базовый класс для всех SQLAlchemy моделей."""
 
 
 class CommonBaseMixin:
+    """Mixin с общими полями: id, created_at, и авто-именованием таблицы."""
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
@@ -38,6 +39,7 @@ AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
 async def get_async_session():
+    """Генератор асинхронной сессии БД с обработкой ошибок."""
     async with AsyncSessionLocal() as async_session:
         try:
             yield async_session

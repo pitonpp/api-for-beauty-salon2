@@ -4,7 +4,7 @@ from app.schemas.master import MasterAdminCreate, MasterAdminUpdate
 
 
 class CRUDMaster(CRUDBase[Master, MasterAdminCreate, MasterAdminUpdate]):
-    pass
+    """CRUD для модели Master."""
 
 
 master_crud = CRUDMaster(Master)
