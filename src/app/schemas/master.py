@@ -6,10 +6,14 @@ from .custom_types import Description
 
 
 class MasterBase(BaseModel):
+    """Базовая схема мастера."""
+
     user_id: int
 
 
 class MasterAdminCreate(MasterBase):
+    """Схема создания мастера администратором."""
+
     bio: Description | None = None
     experience: PositiveInt
 
@@ -19,6 +23,8 @@ class MasterAdminCreate(MasterBase):
 
 
 class MasterUpdate(BaseModel):
+    """Схема обновления мастера."""
+
     bio: Description | None = None
 
     model_config = ConfigDict(
@@ -27,11 +33,15 @@ class MasterUpdate(BaseModel):
 
 
 class MasterAdminUpdate(MasterUpdate):
+    """Схема обновления мастера администратором."""
+
     user_id: int | None = None
     experience: PositiveInt | None = None
 
 
 class MasterShort(BaseModel):
+    """Краткая схема мастера."""
+
     id: int
     bio: str | None = None
     experience: PositiveInt
@@ -42,4 +52,6 @@ class MasterShort(BaseModel):
 
 
 class MasterDB(MasterShort):
+    """Полная схема мастера из БД."""
+
     user_id: int

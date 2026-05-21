@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -21,7 +21,7 @@ def auth_service_() -> AuthService:
 
 
 @pytest.fixture
-def session() -> AsyncSession:
+def mock_session() -> AsyncSession:
     return AsyncMock(spec=AsyncSession)
 
 
@@ -55,6 +55,7 @@ def master_user() -> User:
 @pytest.fixture
 def request_data():
     from app.schemas.appointment import AppointmentCreate
+
     return AppointmentCreate(
-        appointment_time=datetime.now(timezone.utc) + timedelta(hours=2)
+        appointment_time=datetime.now(timezone.utc) + timedelta(hours=2),
     )

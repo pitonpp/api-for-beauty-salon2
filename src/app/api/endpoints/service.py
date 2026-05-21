@@ -21,6 +21,7 @@ async def get_services(
     session: SessionDI,
     service_manager: ServiceManagerDI,
 ) -> list[ServiceShort]:
+    """Возвращает список услуг салона."""
     services = await service_manager.get_services(session)
     return to_schema_list(services, ServiceShort)
 
@@ -31,5 +32,6 @@ async def get_service(
     service_manager: ServiceManagerDI,
     service_id: int,
 ) -> ServiceShort:
+    """Возвращает услугу по ID."""
     service = await service_manager.get_object_or_404(service_id, session)
     return to_schema(service, ServiceShort)

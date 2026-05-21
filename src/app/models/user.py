@@ -1,12 +1,20 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Boolean, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonBaseMixin
 from app.schemas.status_enum import UserRole
 
+if TYPE_CHECKING:
+    from app.models.appointment import Appointment
+
 
 class User(CommonBaseMixin, Base):
     """Модель пользователя (клиент, мастер, администратор)."""
+
     phone: Mapped[str] = mapped_column(
         String(12),
         unique=True,
@@ -58,5 +66,6 @@ class User(CommonBaseMixin, Base):
     )
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
+        """Проверяет, является ли пользователь администратором."""
         return self.role == UserRole.ADMIN

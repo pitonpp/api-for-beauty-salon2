@@ -21,6 +21,7 @@ SessionLocal = sessionmaker(
 
 @contextmanager
 def get_session() -> Generator:
+    """Возвращает синхронную сессию БД для Celery-задач."""
     session = SessionLocal()
     try:
         yield session

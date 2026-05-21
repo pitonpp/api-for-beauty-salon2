@@ -17,16 +17,15 @@ from app.constants import (
     USER_BLOCKED,
     USER_NOT_FOUND,
 )
+from app.core.db import get_async_session
 from app.core.jwt_services import TokenService, token_service
 from app.crud.user import CRUDUser, user_crud
 from app.models.user import User
 from app.schemas.status_enum import UserRole
 from app.schemas.user import Token
 from app.services.password import verify_password
-from app.core.db import get_async_session
 
 from .base import BaseService
-
 
 SessionDependency = Annotated[AsyncSession, Depends(get_async_session)]
 
@@ -41,6 +40,7 @@ class AuthService(BaseService[User, CRUDUser]):
         user_crud: CRUDUser,
         token_service: TokenService,
     ) -> None:
+        """Инициализирует сервис аутентификации."""
         super().__init__(user_crud)
         self.token_service = token_service
 
@@ -50,7 +50,6 @@ class AuthService(BaseService[User, CRUDUser]):
         token: str,
     ) -> User:
         """Возвращает текущего пользователя по access-токену."""
-
         token_data = self.token_service.verify_access_token(token)
         user = await self.crud.get(token_data.user_id, session)
 
@@ -66,7 +65,7 @@ class AuthService(BaseService[User, CRUDUser]):
 
         if not user.is_active:
             logger.warning(
-                "Пользователь user_id={} заблокирован", token_data.user_id
+                "Пользователь user_id={} заблокирован", token_data.user_id,
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -77,7 +76,6 @@ class AuthService(BaseService[User, CRUDUser]):
 
     def get_token_from_request(self, request: Request) -> str:
         """Извлекает токен из заголовка Authorization или cookie."""
-
         auth = request.headers.get(AUTHORIZATION_HEADER)
         if auth and auth.startswith(BEARER_PREFIX):
             return auth[len(BEARER_PREFIX) :]
@@ -86,15 +84,14 @@ class AuthService(BaseService[User, CRUDUser]):
         if token:
             return token
 
-        if not auth or not auth.startswith(BEARER_PREFIX):
-            logger.warning("Токен не найден: path={}", request.url.path)
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=MISSING_TOKEN,
-            )
+        logger.warning("Токен не найден: path={}", request.url.path)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=MISSING_TOKEN,
+        )
 
     def role_check(self, *allowed_roles: UserRole) -> Callable[..., User]:
-        """Возвращает dependency, проверяющую наличие одной из разрешённых ролей."""
+        """Возвращает dependency для проверки разрешённой роли."""
 
         async def checker(
             session: SessionDependency,
@@ -138,10 +135,9 @@ class AuthService(BaseService[User, CRUDUser]):
         )
 
     async def get_by_username(
-        self, session: AsyncSession, username: str
+        self, session: AsyncSession, username: str,
     ) -> User | None:
         """Возвращает пользователя по username."""
-
         return await self.crud.get_one_by(session, username=username)
 
     async def login(
@@ -152,7 +148,6 @@ class AuthService(BaseService[User, CRUDUser]):
         response: Response,
     ) -> Token:
         """Аутентифицирует пользователя и устанавливает токены в cookie."""
-
         user = await self.get_by_username(session, username)
 
         if not user or not verify_password(password, user.password):
@@ -164,7 +159,7 @@ class AuthService(BaseService[User, CRUDUser]):
 
         if not user.is_active:
             logger.warning(
-                "Пользователь user_id={} заблокирован, попытка входа", user.id
+                "Пользователь user_id={} заблокирован, попытка входа", user.id,
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -194,18 +189,17 @@ class AuthService(BaseService[User, CRUDUser]):
         return Token(access_token=access_token)
 
     async def logout(
-        self, response: Response, refresh_token: str, session: AsyncSession
+        self, response: Response, refresh_token: str, session: AsyncSession,
     ) -> None:
         """Удаляет токены из cookie и отзывает refresh-токен."""
-
         token_data = await self.token_service.verify_refresh_token(
-            refresh_token, session
+            refresh_token, session,
         )
         response.delete_cookie(REFRESH_TOKEN_COOKIE)
         response.delete_cookie(ACCESS_TOKEN_COOKIE)
         await self.token_service.revoke_token(token_data, session)
         logger.info(
-            "Пользователь user_id={} вышел из системы", token_data.user_id
+            "Пользователь user_id={} вышел из системы", token_data.user_id,
         )
 
     def _get_token_from_cookie(
@@ -214,7 +208,6 @@ class AuthService(BaseService[User, CRUDUser]):
         is_acces_token: bool = False,
     ) -> str:
         """Извлекает access или refresh токен из cookie."""
-
         cookie_name = (
             ACCESS_TOKEN_COOKIE if is_acces_token else REFRESH_TOKEN_COOKIE
         )
@@ -239,10 +232,9 @@ class AuthService(BaseService[User, CRUDUser]):
         return self._get_token_from_cookie(request, True)
 
     async def refresh(
-        self, session: AsyncSession, request: Request, response: Response
+        self, session: AsyncSession, request: Request, response: Response,
     ) -> Token:
         """Обновляет пару токенов по refresh-токену из cookie."""
-
         refresh_token = self.get_refresh_token_from_cookie(request)
         (
             new_access_token,

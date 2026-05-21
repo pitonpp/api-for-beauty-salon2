@@ -6,20 +6,28 @@ from .custom_types import Name
 
 
 class ServiceBase(BaseModel):
+    """Базовая схема услуги."""
+
     name: Name
 
 
 class ServiceCreate(ServiceBase):
+    """Схема создания услуги."""
+
     model_config = ConfigDict(
         extra="forbid",
     )
 
 
 class ServiceUpdate(ServiceCreate):
+    """Схема обновления услуги."""
+
     name: Name | None = None
 
 
 class ServiceShort(BaseModel):
+    """Краткая схема услуги."""
+
     id: int
     name: str
 

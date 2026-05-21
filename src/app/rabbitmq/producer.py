@@ -16,6 +16,7 @@ class RabbitMQProducer:
         self,
         connection_manager: RabbitMQConnectionManager,
     ) -> None:
+        """Инициализирует producer с менеджером соединения."""
         self.connection_manager = connection_manager
 
     async def publish(
@@ -26,7 +27,6 @@ class RabbitMQProducer:
         routing_key: str | None = None,
     ) -> None:
         """Публикует сообщение в очередь/exchange RabbitMQ."""
-
         connection = await self.connection_manager.get_connect()
 
         channel = await connection.channel()

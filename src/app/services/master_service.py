@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from loguru import logger
 
 from app.constants import (
     CANNOT_CHANGE_OTHERS_SERVICE,
@@ -28,6 +28,7 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
     model = MasterService
 
     def __init__(self, crud: CRUDMasterService) -> None:
+        """Инициализирует сервис управления услугами мастеров."""
         super().__init__(crud)
         self.service_manager = service_manager
         self.master_manager = master_manager
@@ -40,7 +41,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         exclude_id: int | None = None,
     ) -> None:
         """Проверяет, что у мастера ещё нет такой услуги."""
-
         stmt = select(self.model).where(
             self.model.service_id == service_id,
             self.model.master_id == master_id,
@@ -68,7 +68,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         master_check: bool = False,
     ) -> None:
         """Валидирует уникальность и существование услуги/мастера."""
-
         await self._check_uniqueness(
             session,
             service_id,
@@ -92,7 +91,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         user: User,
     ) -> MasterService:
         """Создаёт услугу для текущего мастера (из контекста)."""
-
         master = await self.master_manager.get_master_by_user_id(
             session,
             user,
@@ -110,7 +108,8 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         )
 
         logger.info(
-            "Создана услуга master_service_id={} для master_id={} service_id={}",
+            "Создана услуга master_service_id={} для master_id={} "
+            "service_id={}",
             master_service.id,
             master.id,
             request.service_id,
@@ -124,7 +123,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         master_id: int,
     ) -> MasterService:
         """Создаёт услугу для указанного мастера (администратором)."""
-
         request_data = request.model_dump()
         request_data["master_id"] = master_id
         await self.validate_create_common(
@@ -138,7 +136,8 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
             session,
         )
         logger.info(
-            "Создана услуга master_service_id={} для master_id={} service_id={}",
+            "Создана услуга master_service_id={} для master_id={} "
+            "service_id={}",
             master_service.id,
             master_id,
             request_data["service_id"],
@@ -154,8 +153,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         master_id: int | None = None,
     ) -> MasterService:
         """Обновляет услугу мастера (с проверкой прав)."""
-
-
         if master_id:
             master = await self.master_manager.get_master(
                 session,
@@ -207,7 +204,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         master_id: int,
     ) -> list[MasterService]:
         """Возвращает услуги мастера."""
-
         await self.master_manager.get_object_or_404(
             master_id,
             session,
@@ -224,7 +220,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         service_id: int,
     ) -> MasterService:
         """Возвращает конкретную услугу мастера (по service_id)."""
-
         await self.master_manager.get_object_or_404(
             master_id,
             session,
@@ -254,16 +249,14 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         user: User,
     ) -> list[MasterService]:
         """Возвращает услуги текущего мастера."""
-
         master = await self.master_manager.get_master_by_user_id(
             session,
             user,
         )
-        services = await self.crud.get_master_services(
+        return await self.crud.get_master_services(
             session,
             master.id,
         )
-        return services
 
     async def get_my_service(
         self,
@@ -272,7 +265,6 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         service_id: int,
     ) -> MasterService:
         """Возвращает конкретную услугу текущего мастера."""
-
         master = await self.master_manager.get_master_by_user_id(
             session,
             user,

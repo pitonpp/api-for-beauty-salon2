@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from datetime import timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
@@ -17,6 +20,7 @@ from app.core.db import Base, CommonBaseMixin
 
 class MasterService(CommonBaseMixin, Base):
     """Связь мастера и услуги: цена, описание, длительность."""
+
     master_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("master.id"),
@@ -73,4 +77,11 @@ class MasterService(CommonBaseMixin, Base):
 
     @property
     def service_name(self) -> str:
+        """Возвращает название услуги."""
         return self.service.name
+
+
+if TYPE_CHECKING:
+    from app.models.appointment import Appointment
+    from app.models.master import Master
+    from app.models.service import Service

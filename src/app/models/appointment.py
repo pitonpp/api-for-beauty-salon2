@@ -1,16 +1,24 @@
+from __future__ import annotations
+
 from datetime import datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonBaseMixin
-from app.models.master import Master
 from app.schemas.status_enum import AppointmentStatus
+
+if TYPE_CHECKING:
+    from app.models.master import Master
+    from app.models.master_service import MasterService
+    from app.models.user import User
 
 
 class Appointment(CommonBaseMixin, Base):
     """Модель записи клиента на услугу мастера."""
+
     client_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("user.id"),
@@ -48,8 +56,10 @@ class Appointment(CommonBaseMixin, Base):
 
     @property
     def service_name(self) -> str:
+        """Возвращает название услуги."""
         return self.master_service.service.name
 
     @property
     def master(self) -> Master:
+        """Возвращает мастера услуги."""
         return self.master_service.master

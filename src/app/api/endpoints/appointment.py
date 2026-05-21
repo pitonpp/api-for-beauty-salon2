@@ -24,6 +24,7 @@ async def create_appointment(
     user: AllowUserDI,
     request: AppointmentCreate,
 ) -> AppointmentShort:
+    """Создаёт запись на услугу мастера."""
     appointment = await appointment_service.create_appointment(
         request,
         session,

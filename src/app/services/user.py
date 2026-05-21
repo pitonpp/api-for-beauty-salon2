@@ -20,11 +20,11 @@ class UserService(BaseService[User, CRUDUser]):
     model = User
 
     def __init__(self, crud: CRUDUser) -> None:
+        """Инициализирует сервис управления пользователями."""
         super().__init__(crud)
 
     def _add_password_hash(self, data: dict[str, Any]) -> dict[str, Any]:
         """Хэширует пароль в переданных данных, если он указан."""
-
         if "password" not in data or data["password"] is None:
             logger.info("Пароль не указан, пропускаем добавление пароля")
             return data
@@ -34,10 +34,9 @@ class UserService(BaseService[User, CRUDUser]):
         return data
 
     async def create_user(
-        self, session: AsyncSession, request: UserCreate
+        self, session: AsyncSession, request: UserCreate,
     ) -> User:
         """Создаёт нового пользователя с хэшированным паролем."""
-
         try:
             request_data = request.model_dump()
             request_data = self._add_password_hash(request_data)
@@ -63,7 +62,6 @@ class UserService(BaseService[User, CRUDUser]):
         current_user: User | None = None,
     ) -> User:
         """Обновляет пользователя (админ не может деактивировать себя)."""
-
         try:
             user_to_update = await self.get_object_or_404(user_id, session)
             update_data = request.model_dump(exclude_unset=True)
@@ -72,11 +70,11 @@ class UserService(BaseService[User, CRUDUser]):
 
             if isinstance(request, UserUpdateAdmin):
                 self.validate_admin_self_update(
-                    user_to_update, current_user, request
+                    user_to_update, current_user, request,
                 )
 
             updated_user = await self.crud.update(
-                user_to_update, update_data, session
+                user_to_update, update_data, session,
             )
             logger.info(
                 "Обновлен пользователь user_id={}",
@@ -95,7 +93,6 @@ class UserService(BaseService[User, CRUDUser]):
         user_update_schema: UserUpdateAdmin,
     ) -> None:
         """Проверяет, что админ не пытается деактивировать сам себя."""
-
         if (
             user_to_update.id == current_user.id
             and user_update_schema.is_active is False
@@ -112,10 +109,9 @@ class UserService(BaseService[User, CRUDUser]):
     async def get_users(
         self,
         session: AsyncSession,
-        **filters,
+        **filters: Any,
     ) -> list[User]:
         """Возвращает список пользователей с опциональной фильтрацией."""
-
         if filters:
             return await self.crud.get_multi(session, **filters)
         return await self.crud.get_multi(session)

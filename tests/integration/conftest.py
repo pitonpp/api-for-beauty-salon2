@@ -1,21 +1,32 @@
+import os
+from collections.abc import AsyncIterator
+
 import pytest
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
-    async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.pool import NullPool
 
 from app.core.db import Base
 
+TEST_DATABASE_URL = os.getenv(
+    'TEST_DATABASE_URL',
+    'postgresql+asyncpg://test:test@localhost:5433/test_db',
+)
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
-
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 async def async_engine():
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        poolclass=NullPool,
+    )
 
     async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     yield engine
@@ -27,18 +38,27 @@ async def async_engine():
 
 
 @pytest.fixture
-async def session(async_engine):
-    connection = await async_engine.connect()
-    transaction = await connection.begin()
-
-    async_session = async_sessionmaker(
-        bind=connection,
-        class_=AsyncSession,
+async def session(async_engine) -> AsyncIterator[AsyncSession]:
+    async with AsyncSession(
+        bind=async_engine,
         expire_on_commit=False,
-    )
+    ) as session:
+        yield session
 
-    async with async_session() as s:
-        yield s
 
-    await transaction.rollback()
-    await connection.close()
+TABLES_TO_CLEAN = [
+    'appointment',
+    'masterservice',
+    'master',
+    'service',
+    'refreshtoken',
+    '"user"',
+]
+
+
+@pytest.fixture(autouse=True)
+async def _clean_db(async_engine):
+    yield
+    async with async_engine.begin() as conn:
+        for table in TABLES_TO_CLEAN:
+            await conn.execute(text(f'TRUNCATE TABLE {table} CASCADE'))

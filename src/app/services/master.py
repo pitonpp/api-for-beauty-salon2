@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants import ALREADY_A_MASTER, NOT_A_MASTER
 from app.crud.master import CRUDMaster, master_crud
@@ -23,6 +23,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
     model = Master
 
     def __init__(self, crud: CRUDMaster) -> None:
+        """Инициализирует сервис управления мастерами."""
         super().__init__(crud)
         self.user_service = user_service
 
@@ -32,7 +33,6 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         user: User,
     ) -> None:
         """Меняет роль пользователя на MASTER."""
-
         user.role = UserRole.MASTER
         logger.info(
             "Изменилась роль у пользователя username={}, role={}",
@@ -47,9 +47,8 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         request: MasterAdminCreate,
     ) -> Master:
         """Создаёт мастера и меняет роль пользователя на MASTER."""
-
         user = await self.user_service.get_object_or_404(
-            request.user_id, session
+            request.user_id, session,
         )
         if user.role == UserRole.MASTER:
             logger.warning(
@@ -77,7 +76,6 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         request: MasterAdminUpdate | MasterUpdate,
     ) -> Master:
         """Обновляет данные мастера (по user_id)."""
-
         master = await self.get_master_by_user_id(session, user)
         updated = await self.update(session, master.id, request)
         logger.info(
@@ -92,7 +90,6 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         user_id: int,
     ) -> User:
         """Понижает роль мастера до обычного пользователя."""
-
         user = await self.user_service.get_object_or_404(user_id, session)
         if user.role == UserRole.MASTER:
             user.role = UserRole.USER
@@ -109,7 +106,6 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         session: AsyncSession,
     ) -> list[Master]:
         """Возвращает всех мастеров."""
-
         return await self.crud.get_multi(session)
 
     async def get_master(
@@ -118,7 +114,6 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         master_id: int,
     ) -> Master:
         """Возвращает мастера по ID или 404."""
-
         return await self.get_object_or_404(master_id, session)
 
     async def get_master_by_user_id(
@@ -126,8 +121,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         session: AsyncSession,
         user: User,
     ) -> Master:
-        """Возвращает мастера по user_id или 400, если пользователь не мастер."""
-
+        """Возвращает мастера по user_id или 400, если не мастер."""
         master = await self.crud.get_one_by(session, user_id=user.id)
         if master is None:
             logger.warning(
@@ -141,7 +135,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
             )
         if user.role != UserRole.MASTER:
             logger.warning(
-                "Попытка выдать себя за мастера пользователем: username={}, user_id={}",
+                "Попытка выдать себя за мастера: username={}, user_id={}",
                 user.username,
                 user.id,
             )

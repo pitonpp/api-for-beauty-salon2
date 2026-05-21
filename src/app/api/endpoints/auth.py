@@ -17,8 +17,9 @@ async def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Token:
+    """Аутентифицирует пользователя."""
     return await auth_service.login(
-        session, form_data.username, form_data.password, response
+        session, form_data.username, form_data.password, response,
     )
 
 
@@ -30,6 +31,7 @@ async def logout(
     request: Request,
     _: AllowUserDI,
 ) -> None:
+    """Выход из системы."""
     refresh_token = auth_service.get_refresh_token_from_cookie(request)
     await auth_service.logout(response, refresh_token, session)
 
@@ -42,4 +44,5 @@ async def refresh(
     request: Request,
     # _: AllowUserDI,
 ) -> Token:
+    """Обновляет пару токенов."""
     return await auth_service.refresh(session, request, response)

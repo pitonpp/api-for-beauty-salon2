@@ -1,4 +1,4 @@
-"""Endpoint'ы пользователя: регистрация, профиль, управление своими записями."""
+"""Endpoint'ы пользователя: регистрация, профиль, управление записями."""
 
 from fastapi import APIRouter
 
@@ -8,11 +8,9 @@ from app.schemas.user import (
     UserDB,
     UserShort,
     UserUpdate,
-    UserUpdateAdmin,
 )
 
 from ..dependencies import (
-    AllowAdminDI,
     AllowUserDI,
     AppointmentServiceDI,
     SessionDI,
@@ -26,8 +24,9 @@ router = APIRouter()
 
 @router.post("/sign_up", response_model=UserShort)
 async def sign_up(
-    session: SessionDI, request: UserCreate, user_service: UserServiceDI
+    session: SessionDI, request: UserCreate, user_service: UserServiceDI,
 ) -> UserShort:
+    """Регистрирует нового пользователя."""
     user = await user_service.create_user(session, request)
     return to_schema(user, UserShort)
 
@@ -37,6 +36,7 @@ async def get_me(
     session: SessionDI,
     user: AllowUserDI,
 ) -> UserDB:
+    """Возвращает профиль текущего пользователя."""
     return to_schema(user, UserDB)
 
 
@@ -47,6 +47,7 @@ async def update_me(
     request: UserUpdate,
     user_service: UserServiceDI,
 ) -> UserDB:
+    """Обновляет профиль текущего пользователя."""
     user = await user_service.update_user(user.id, session, request)
     return to_schema(user, UserDB)
 
@@ -60,8 +61,9 @@ async def get_appointments(
     appointment_service: AppointmentServiceDI,
     user: AllowUserDI,
 ) -> list[AppointmentShort]:
+    """Возвращает записи текущего пользователя."""
     appointments = await appointment_service.get_user_appointments(
-        session, user
+        session, user,
     )
     return to_schema_list(appointments, AppointmentShort)
 
@@ -76,6 +78,7 @@ async def get_appointment(
     user: AllowUserDI,
     appointment_id: int,
 ) -> AppointmentShort:
+    """Возвращает запись текущего пользователя."""
     appointment = await appointment_service.get_user_appointment(
         session,
         user,
@@ -95,6 +98,7 @@ async def update_appointment(
     request: AppointmentUpdate,
     user: AllowUserDI,
 ) -> AppointmentShort:
+    """Обновляет запись текущего пользователя."""
     appointment = await appointment_service.update_appointment(
         request,
         session,

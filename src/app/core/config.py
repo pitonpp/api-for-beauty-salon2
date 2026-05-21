@@ -11,6 +11,7 @@ ENV_FILE = BASE_DIR / "infra" / ".env"
 
 class Settings(BaseSettings):
     """Настройки приложения, загружаемые из .env файла."""
+
     postgres_host: str
     postgres_port: int
     postgres_user: str

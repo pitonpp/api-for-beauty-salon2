@@ -10,7 +10,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     """Хэширует пароль через bcrypt (обрезает до 72 байт)."""
-
     # Обрезаем пароль до 72 байт перед хешированием
     password_bytes = password.encode(ENCODING)
     if len(password_bytes) > 72:
@@ -21,7 +20,6 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Проверяет пароль против хэша."""
-
     if not plain_password or not hashed_password:
         logger.warning("Не был дан пароль или хэш пароля")
         return False

@@ -48,4 +48,6 @@ FIRST_AND_LAST_NAME_PATTERN = r"^[А-ЯЁ][а-яё]+$"
 USERNAME_PATTERN = r"^[A-Za-z][A-Za-z0-9_]+$"
 PHONE_PATTERN = r"^(\+7|8)9\d{9}$"
 PASSWORD_PATTERN = r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)\S{6,}$"
-NAME_PATTERN = r"^(?:[а-яА-ЯёЁ]+(?:[ -][а-яА-ЯёЁ]+)*|[A-Za-z]+(?:[ -][A-Za-z]+)*)$"
+NAME_PATTERN = (
+    r"^(?:[а-яА-ЯёЁ]+(?:[ -][а-яА-ЯёЁ]+)*|[A-Za-z]+(?:[ -][A-Za-z]+)*)$"
+)

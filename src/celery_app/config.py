@@ -2,7 +2,6 @@ from kombu import Exchange, Queue
 
 from app.core.config import settings
 
-
 default_exchange = Exchange("default", type="direct")
 email_exchange = Exchange("email", type="direct")
 phone_exchange = Exchange("phone", type="direct")
@@ -11,6 +10,8 @@ broadcast_exchange = Exchange("broadcast", type="fanout")
 
 
 class CeleryConfig:
+    """Конфигурация Celery."""
+
     broker_url = settings.broker_url
     task_serializer = "json"
     result_serializer = "json"
