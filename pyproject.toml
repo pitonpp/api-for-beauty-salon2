@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "api-for-beauty-salon2"
 version = "0.1.0"
 description = "API for Beauty Salon"
-requires-python = "==3.14.0"
+requires-python = "==3.14.*"
 dependencies = [
     "fastapi>=0.129.0",
     "uvicorn>=0.41.0",
