@@ -55,9 +55,7 @@ class TokenService:
         self.secret_key = settings.secret_key
         self.refresh_secret_key = settings.refresh_secret_key
         self.algorithm = settings.algorithm
-        self.access_token_expire_minutes = (
-            settings.access_token_expire_minutes
-        )
+        self.access_token_expire_minutes = settings.access_token_expire_minutes
         self.refresh_token_expire_days = settings.refresh_token_expire_days
 
     def _hash_token(self, token: str) -> str:
