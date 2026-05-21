@@ -15,7 +15,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-from app.core.config import settings
+from app.core.config import get_settings
 
 
 class Base(DeclarativeBase):
@@ -39,6 +39,7 @@ class CommonBaseMixin:
     )
 
 
+settings = get_settings()
 engine = create_async_engine(settings.async_database_url)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 

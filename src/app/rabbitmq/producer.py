@@ -1,12 +1,14 @@
 import aio_pika
 from aio_pika import ExchangeType
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.rabbitmq.connection import (
     RabbitMQConnectionManager,
     rabbitmq_connection_manager,
 )
 from app.rabbitmq.serializer import MessageType, json_serializer
+
+settings = get_settings()
 
 
 class RabbitMQProducer:

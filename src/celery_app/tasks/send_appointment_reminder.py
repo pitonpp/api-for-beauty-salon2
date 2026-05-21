@@ -6,10 +6,12 @@ from celery import Task
 from sqlalchemy import Date, cast, select
 from sqlalchemy.orm import selectinload
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.appointment import Appointment
 from celery_app.utility.db import get_session
 from celery_app.worker import celery
+
+settings = get_settings()
 
 
 @celery.task(

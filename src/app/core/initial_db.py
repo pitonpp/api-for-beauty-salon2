@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.schemas.status_enum import UserRole
 from app.schemas.user import UserAdminCreate
 from app.services.user import user_service
@@ -8,6 +8,7 @@ from app.services.user import user_service
 
 async def create_first_users(session: AsyncSession) -> None:
     """Создаёт начальных пользователей (admin, master, user) при запуске."""
+    settings = get_settings()
     users_data = [
         {
             'phone': settings.first_superuser_phonenumber,

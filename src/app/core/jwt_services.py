@@ -28,9 +28,11 @@ from app.constants import (
     TOKEN_NOT_FOUND,
     TOKEN_REVOKED,
 )
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.refresh_token import RefreshToken
 from app.schemas.user import TokenData
+
+settings = get_settings()
 
 
 class InvalidTokenError(HTTPException):
@@ -53,7 +55,9 @@ class TokenService:
         self.secret_key = settings.secret_key
         self.refresh_secret_key = settings.refresh_secret_key
         self.algorithm = settings.algorithm
-        self.access_token_expire_minutes = settings.access_token_expire_minutes
+        self.access_token_expire_minutes = (
+            settings.access_token_expire_minutes
+        )
         self.refresh_token_expire_days = settings.refresh_token_expire_days
 
     def _hash_token(self, token: str) -> str:

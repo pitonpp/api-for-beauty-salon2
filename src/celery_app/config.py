@@ -1,12 +1,14 @@
 from kombu import Exchange, Queue
 
-from app.core.config import settings
+from app.core.config import get_settings
 
 default_exchange = Exchange('default', type='direct')
 email_exchange = Exchange('email', type='direct')
 phone_exchange = Exchange('phone', type='direct')
 high_priority_exchange = Exchange('high', type='direct')
 broadcast_exchange = Exchange('broadcast', type='fanout')
+
+settings = get_settings()
 
 
 class CeleryConfig:
