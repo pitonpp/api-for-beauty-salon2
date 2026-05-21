@@ -8,10 +8,10 @@ from .service import Service
 from .user import User
 
 __all__ = [
-    "Master",
-    "MasterService",
-    "Appointment",
-    "User",
-    "Service",
-    "RefreshToken",
+    'Master',
+    'MasterService',
+    'Appointment',
+    'User',
+    'Service',
+    'RefreshToken',
 ]

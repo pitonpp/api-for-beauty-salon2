@@ -14,6 +14,8 @@ from app.core.logger import setup_logging
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """Управляет жизненным циклом приложения."""
+    # await rabbitmq_connection_manager.connect()
     # await rabbitmq_connection_manager.connect()
 
     try:

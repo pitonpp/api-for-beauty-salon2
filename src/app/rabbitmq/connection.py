@@ -3,7 +3,9 @@ from aio_pika.abc import (
     AbstractRobustConnection,
 )
 
-from app.core.config import settings
+from app.core.config import get_settings
+
+settings = get_settings()
 
 
 class RabbitMQConnectionManager:
@@ -12,9 +14,11 @@ class RabbitMQConnectionManager:
     """Управляет подключением к RabbitMQ."""
 
     def __init__(self) -> None:
+        """Инициализирует менеджер соединения RabbitMQ."""
         self.connection: AbstractRobustConnection | None = None
 
-    async def connect(self):
+    async def connect(self) -> 'RabbitMQConnectionManager':
+        """Устанавливает соединение с RabbitMQ."""
         if self.connection:
             return self
 
@@ -27,16 +31,17 @@ class RabbitMQConnectionManager:
             heartbeat=settings.rabbitmq_heartbeat,
             connection_attempts=settings.rabbitmq_connection_attempts,
         )
+        return self
 
-    async def get_connect(self):
+    async def get_connect(self) -> AbstractRobustConnection:
+        """Возвращает соединение с RabbitMQ или raise."""
         if not self.connection:
-            raise RuntimeError("RabbitMQ соединение не установлено")
+            raise RuntimeError('RabbitMQ соединение не установлено')
 
         return self.connection
 
     async def close(self) -> None:
         """Закрывает соединение с RabbitMQ."""
-
         if self.connection:
             await self.connection.close()
             self.connection = None

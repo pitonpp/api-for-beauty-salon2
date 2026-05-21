@@ -16,36 +16,36 @@ main_router = APIRouter()
 
 main_router.include_router(
     master_router,
-    prefix="/masters",
-    tags=["Masters"],
+    prefix='/masters',
+    tags=['Masters'],
 )
 
 main_router.include_router(
     appointment_router,
-    prefix="/appointments",
-    tags=["Appointments"],
+    prefix='/appointments',
+    tags=['Appointments'],
 )
 
 main_router.include_router(
     service_router,
-    prefix="/services",
-    tags=["Services"],
+    prefix='/services',
+    tags=['Services'],
 )
 
 main_router.include_router(
     auth_router,
-    prefix="/auth",
-    tags=["Authentication"],
+    prefix='/auth',
+    tags=['Authentication'],
 )
 
 main_router.include_router(
     user_router,
-    prefix="/users",
-    tags=["Users"],
+    prefix='/users',
+    tags=['Users'],
 )
 
 main_router.include_router(
     admin_router,
-    prefix="/admin",
-    tags=["Admin"],
+    prefix='/admin',
+    tags=['Admin'],
 )

@@ -4,16 +4,16 @@ from fastapi import APIRouter
 
 from app.api.dependencies import (
     AllowMasterAdminDI,
+    AppointmentServiceDI,
     MasterManagerDI,
     MasterServiceManagerDI,
     SessionDI,
     to_schema,
     to_schema_list,
-    AppointmentServiceDI,
 )
 from app.schemas.appointment import (
-    AppointmentWithRelationsMaster,
     AppointmentMasterUpdate,
+    AppointmentWithRelationsMaster,
 )
 from app.schemas.master import (
     MasterShort,
@@ -28,42 +28,46 @@ from app.schemas.master_service import (
 router = APIRouter()
 
 
-@router.get("", response_model=list[MasterShort])
+@router.get('', response_model=list[MasterShort])
 async def get_masters(
     session: SessionDI,
     master_manager: MasterManagerDI,
 ) -> list[MasterShort]:
+    """Возвращает список всех мастеров."""
     masters = await master_manager.get_masters(session)
     return to_schema_list(masters, MasterShort)
 
 
-@router.patch("/me", response_model=MasterShort)
+@router.patch('/me', response_model=MasterShort)
 async def update_me(
     session: SessionDI,
     user: AllowMasterAdminDI,
     request: MasterUpdate,
     master_manager: MasterManagerDI,
 ) -> MasterShort:
+    """Обновляет профиль текущего мастера."""
     master = await master_manager.update_master(session, user, request)
     return to_schema(master, MasterShort)
 
 
-@router.get("/me", response_model=MasterShort)
+@router.get('/me', response_model=MasterShort)
 async def get_me(
     session: SessionDI,
     user: AllowMasterAdminDI,
     master_manager: MasterManagerDI,
 ) -> MasterShort:
+    """Возвращает профиль текущего мастера."""
     master = await master_manager.get_master_by_user_id(session, user)
     return to_schema(master, MasterShort)
 
 
-@router.get("/me/services", response_model=list[MasterServiceShort])
+@router.get('/me/services', response_model=list[MasterServiceShort])
 async def get_me_services(
     session: SessionDI,
     user: AllowMasterAdminDI,
     master_service_manager: MasterServiceManagerDI,
 ) -> list[MasterServiceShort]:
+    """Возвращает услуги текущего мастера."""
     services = await master_service_manager.get_my_services(
         session,
         user,
@@ -71,7 +75,7 @@ async def get_me_services(
     return to_schema_list(services, MasterServiceShort)
 
 
-@router.patch("/me/services/{service_id}", response_model=MasterServiceShort)
+@router.patch('/me/services/{service_id}', response_model=MasterServiceShort)
 async def update_my_service(
     service_id: int,
     session: SessionDI,
@@ -79,6 +83,7 @@ async def update_my_service(
     request: MasterServiceUpdate,
     master_service_manager: MasterServiceManagerDI,
 ) -> MasterServiceShort:
+    """Обновляет услугу текущего мастера."""
     service = await master_service_manager.update_master_service(
         session,
         service_id,
@@ -88,13 +93,14 @@ async def update_my_service(
     return to_schema(service, MasterServiceShort)
 
 
-@router.post("/me/services", response_model=MasterServiceShort)
+@router.post('/me/services', response_model=MasterServiceShort)
 async def create_my_service(
     session: SessionDI,
     user: AllowMasterAdminDI,
     request: MasterServiceCreate,
     master_service_manager: MasterServiceManagerDI,
 ) -> MasterServiceShort:
+    """Создаёт услугу для текущего мастера."""
     service = await master_service_manager.create_master_service(
         session,
         request,
@@ -104,13 +110,15 @@ async def create_my_service(
 
 
 @router.get(
-    "/me/appointments", response_model=list[AppointmentWithRelationsMaster]
+    '/me/appointments',
+    response_model=list[AppointmentWithRelationsMaster],
 )
 async def get_my_appointments(
     session: SessionDI,
     user: AllowMasterAdminDI,
     appointment_service: AppointmentServiceDI,
 ) -> list[AppointmentWithRelationsMaster]:
+    """Возвращает записи текущего мастера."""
     appointments = await appointment_service.get_master_appointments(
         session,
         user,
@@ -119,7 +127,7 @@ async def get_my_appointments(
 
 
 @router.get(
-    "/me/appointments/{appointment_id}",
+    '/me/appointments/{appointment_id}',
     response_model=AppointmentWithRelationsMaster,
 )
 async def get_my_appointment(
@@ -128,6 +136,7 @@ async def get_my_appointment(
     user: AllowMasterAdminDI,
     appointment_service: AppointmentServiceDI,
 ) -> AppointmentWithRelationsMaster:
+    """Возвращает запись текущего мастера."""
     appointment = await appointment_service.get_master_appointment(
         session,
         user,
@@ -137,7 +146,7 @@ async def get_my_appointment(
 
 
 @router.patch(
-    "/me/appointments/{appointment_id}",
+    '/me/appointments/{appointment_id}',
     response_model=AppointmentWithRelationsMaster,
 )
 async def update_my_appointment(
@@ -147,6 +156,7 @@ async def update_my_appointment(
     request: AppointmentMasterUpdate,
     appointment_service: AppointmentServiceDI,
 ) -> AppointmentWithRelationsMaster:
+    """Обновляет статус записи текущего мастера."""
     appointment = await appointment_service.master_update_appointment(
         request,
         session,
@@ -155,12 +165,13 @@ async def update_my_appointment(
     return to_schema(appointment, AppointmentWithRelationsMaster)
 
 
-@router.get("/{master_id}", response_model=MasterShort)
+@router.get('/{master_id}', response_model=MasterShort)
 async def get_master(
     master_id: int,
     session: SessionDI,
     master_manager: MasterManagerDI,
 ) -> MasterShort:
+    """Возвращает мастера по ID."""
     master = await master_manager.get_master(
         session,
         master_id,
@@ -168,12 +179,13 @@ async def get_master(
     return to_schema(master, MasterShort)
 
 
-@router.get("/{master_id}/services", response_model=list[MasterServiceShort])
+@router.get('/{master_id}/services', response_model=list[MasterServiceShort])
 async def get_master_services(
     master_id: int,
     session: SessionDI,
     master_service_manager: MasterServiceManagerDI,
 ) -> list[MasterServiceShort]:
+    """Возвращает услуги мастера."""
     services = await master_service_manager.get_master_services(
         session,
         master_id,
@@ -182,7 +194,8 @@ async def get_master_services(
 
 
 @router.get(
-    "/{master_id}/services/{service_id}", response_model=MasterServiceShort
+    '/{master_id}/services/{service_id}',
+    response_model=MasterServiceShort,
 )
 async def get_master_service(
     master_id: int,
@@ -190,6 +203,7 @@ async def get_master_service(
     session: SessionDI,
     master_service_manager: MasterServiceManagerDI,
 ) -> MasterServiceShort:
+    """Возвращает конкретную услугу мастера."""
     service = await master_service_manager.get_master_service(
         session,
         master_id,

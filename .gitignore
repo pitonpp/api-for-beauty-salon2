@@ -9,6 +9,7 @@ env/
 # Кэш Python
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Файлы IDE
 .vscode/
@@ -22,3 +23,4 @@ config/local.py
 dist/
 build/
 *.egg-info/
+.ruff_cache

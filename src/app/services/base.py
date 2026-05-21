@@ -1,12 +1,16 @@
 from typing import Any, Generic, Type
 
 from fastapi import HTTPException, status
-from sqlalchemy import inspect, select
+from loguru import logger
+from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from loguru import logger
 
-from app.constants import CONFLICT_SAVING, OBJECT_NOT_FOUND, SERVICE_ALREADY_ADDED
+from app.constants import (
+    CONFLICT_SAVING,
+    OBJECT_NOT_FOUND,
+    SERVICE_ALREADY_ADDED,
+)
 from app.core.types import (
     CRUDType,
     CreateSchemaType,
@@ -22,12 +26,12 @@ class BaseService(Generic[ModelType, CRUDType]):
     custom_fields_names: dict[str, str] = {}
 
     def __init__(self, crud: CRUDType) -> None:
+        """Инициализирует базовый сервис с CRUD-объектом."""
         self.crud = crud
 
     @classmethod
     def _get_field_name(cls, field: str) -> str:
-        """Возвращает человекочитаемое имя поля (из comment или кастомного словаря)."""
-
+        """Возвращает имя поля (из comment или кастомного словаря)."""
         if field in cls.custom_fields_names:
             return cls.custom_fields_names[field]
 
@@ -37,12 +41,11 @@ class BaseService(Generic[ModelType, CRUDType]):
             if column is not None and column.comment:
                 return column.comment
 
-        return " ".join(word.capitalize() for word in field.split("_"))
+        return ' '.join(word.capitalize() for word in field.split('_'))
 
     @classmethod
     def _get_unique_fields(cls) -> list[str]:
         """Возвращает список уникальных полей модели."""
-
         if not cls.model:
             return []
 
@@ -51,17 +54,15 @@ class BaseService(Generic[ModelType, CRUDType]):
 
     @classmethod
     def _handle_integrity_error(
-        cls, e: IntegrityError, operation: str
+        cls,
+        e: IntegrityError,
+        operation: str,
     ) -> None:
-        """Обрабатывает IntegrityError: формирует понятное сообщение об ошибке."""
-
+        """Обрабатывает IntegrityError с понятным сообщением об ошибке."""
         error_msg = str(e.orig).lower()
-        operation_name = {"create": "создании", "update": "обновлении"}.get(
-            operation, operation
-        )
 
-        if "uq_service_master" in error_msg:
-            logger.warning("Попытка добавить уже созданную услугу")
+        if 'uq_service_master' in error_msg:
+            logger.warning('Попытка добавить уже созданную услугу')
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=SERVICE_ALREADY_ADDED,
@@ -79,21 +80,22 @@ class BaseService(Generic[ModelType, CRUDType]):
                     detail=f"Поле '{field_name}' уже занято",
                 )
 
-        logger.opt(exception=True).warning("Ошибка целостности: {}", e)
+        logger.opt(exception=True).warning('Ошибка целостности: {}', e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=CONFLICT_SAVING,
         )
 
     async def get_object_or_404(
-        self, obj_id: int, session: AsyncSession
+        self,
+        obj_id: int,
+        session: AsyncSession,
     ) -> ModelType:
         """Возвращает объект или выбрасывает 404."""
-
         obj = await self.crud.get(obj_id, session)
         if not obj:
             logger.warning(
-                "{} id={} не найден",
+                '{} id={} не найден',
                 self.model.__name__,
                 obj_id,
             )
@@ -109,13 +111,12 @@ class BaseService(Generic[ModelType, CRUDType]):
         session: AsyncSession,
     ) -> ModelType:
         """Создаёт объект с обработкой IntegrityError."""
-
         try:
             return await self.crud.create(request, session)
 
         except IntegrityError as e:
             await session.rollback()
-            self._handle_integrity_error(e, "create")
+            self._handle_integrity_error(e, 'create')
 
     async def update(
         self,
@@ -125,7 +126,6 @@ class BaseService(Generic[ModelType, CRUDType]):
         obj: ModelType | None = None,
     ) -> ModelType:
         """Обновляет объект по ID или переданному объекту."""
-
         try:
             if obj is None:
                 obj = await self.get_object_or_404(obj_id, session)
@@ -133,4 +133,4 @@ class BaseService(Generic[ModelType, CRUDType]):
 
         except IntegrityError as e:
             await session.rollback()
-            self._handle_integrity_error(e, "update")
+            self._handle_integrity_error(e, 'update')

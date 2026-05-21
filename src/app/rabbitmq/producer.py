@@ -1,12 +1,14 @@
 import aio_pika
 from aio_pika import ExchangeType
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.rabbitmq.connection import (
     RabbitMQConnectionManager,
     rabbitmq_connection_manager,
 )
 from app.rabbitmq.serializer import MessageType, json_serializer
+
+settings = get_settings()
 
 
 class RabbitMQProducer:
@@ -16,6 +18,7 @@ class RabbitMQProducer:
         self,
         connection_manager: RabbitMQConnectionManager,
     ) -> None:
+        """Инициализирует producer с менеджером соединения."""
         self.connection_manager = connection_manager
 
     async def publish(
@@ -26,7 +29,6 @@ class RabbitMQProducer:
         routing_key: str | None = None,
     ) -> None:
         """Публикует сообщение в очередь/exchange RabbitMQ."""
-
         connection = await self.connection_manager.get_connect()
 
         channel = await connection.channel()

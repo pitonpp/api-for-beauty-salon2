@@ -1,6 +1,6 @@
 from sqlalchemy import Select, select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
 from app.models.master_service import MasterService
@@ -15,7 +15,7 @@ class CRUDMasterService(
         MasterService,
         MasterServiceCreate,
         MasterServiceUpdate,
-    ]
+    ],
 ):
     """CRUD для модели MasterService с подгрузкой service и master."""
 
@@ -27,7 +27,6 @@ class CRUDMasterService(
         service_id: int | None = None,
     ) -> Select:
         """Формирует запрос услуг мастера с подгрузкой service/master."""
-
         stmt = (
             select(self.model)
             .options(
@@ -48,7 +47,6 @@ class CRUDMasterService(
         session: AsyncSession,
     ) -> MasterService:
         """Перезагружает объект с подгруженными service и master."""
-
         stmt = (
             select(self.model)
             .options(
@@ -68,7 +66,6 @@ class CRUDMasterService(
         service_id: int,
     ) -> MasterService | None:
         """Возвращает услугу мастера по ID мастера и ID услуги."""
-
         stmt = self._get_statement(
             master_id=master_id,
             service_id=service_id,
@@ -84,7 +81,6 @@ class CRUDMasterService(
         limit: int = 10,
     ) -> list[MasterService]:
         """Возвращает список услуг мастера."""
-
         stmt = self._get_statement(
             master_id=master_id,
             skip=skip,

@@ -10,7 +10,8 @@ from app.core.types import CreateSchemaType, ModelType, UpdateSchemaType
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """Базовый CRUD-класс с типовыми операциями create/read/update/delete."""
 
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model: Type[ModelType]) -> None:
+        """Инициализирует CRUD с моделью SQLAlchemy."""
         self.model = model
 
     async def get(
@@ -24,7 +25,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get_one_by(
         self,
         session: AsyncSession,
-        **kwargs,
+        **kwargs: Any,
     ) -> ModelType | None:
         """Возвращает первый объект, соответствующий фильтрам, или None."""
         stmt = select(self.model).filter_by(**kwargs)
@@ -36,7 +37,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         skip: int = 0,
         limit: int = 10,
-        **filters,
+        **filters: Any,
     ) -> list[ModelType]:
         """Возвращает список объектов с пагинацией и фильтрацией."""
         stmt = select(self.model)
@@ -55,7 +56,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
     ) -> ModelType:
         """Создаёт новый объект в БД."""
-
         if isinstance(request, dict):
             request_data = request
         else:
@@ -74,7 +74,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
     ) -> ModelType:
         """Обновляет объект: только переданные поля (exclude_unset)."""
-
         if isinstance(request, dict):
             update_data = request
         else:
@@ -90,10 +89,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     async def delete(
-        self, db_obj: ModelType, session: AsyncSession
+        self,
+        db_obj: ModelType,
+        session: AsyncSession,
     ) -> ModelType:
         """Удаляет объект из БД."""
-
         await session.delete(db_obj)
         await session.commit()
         return db_obj

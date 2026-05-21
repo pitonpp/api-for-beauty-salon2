@@ -15,6 +15,7 @@ class RabbitMQConsumer:
         self,
         connection_manager: RabbitMQConnectionManager,
     ) -> None:
+        """Инициализирует consumer с менеджером соединения."""
         self.connection_manager = connection_manager
 
     async def start_consumer(
@@ -24,13 +25,12 @@ class RabbitMQConsumer:
         prefetch_count: int = 1,
     ) -> None:
         """Запускает consumer для указанной очереди с заданным callback."""
-
         connection = await self.connection_manager.get_connect()
         channel = await connection.channel()
         await channel.set_qos(prefetch_count=prefetch_count)
         queue = await channel.declare_queue(name=queue_name, durable=True)
 
-        async def wrapper(message: IncomingMessage):
+        async def wrapper(message: IncomingMessage) -> None:
             async with message.process():
                 await callback_func(message)
 

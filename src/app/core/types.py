@@ -9,9 +9,9 @@ if TYPE_CHECKING:
     from app.crud.base import CRUDBase
     from app.services.base import BaseService
 
-ModelType = TypeVar("ModelType", bound="Base")
-CRUDType = TypeVar("CRUDType", bound="CRUDBase")
-ManagerType = TypeVar("ManagerType", bound="BaseService")
-SchemaType = TypeVar("SchemaType", bound=BaseModel)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+ModelType = TypeVar('ModelType', bound='Base')
+CRUDType = TypeVar('CRUDType', bound='CRUDBase')
+ManagerType = TypeVar('ManagerType', bound='BaseService')
+SchemaType = TypeVar('SchemaType', bound=BaseModel)
+CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
+UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)

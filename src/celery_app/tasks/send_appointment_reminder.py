@@ -6,19 +6,22 @@ from celery import Task
 from sqlalchemy import Date, cast, select
 from sqlalchemy.orm import selectinload
 
-from app.core.config import settings
+from app.core.config import get_settings
 from app.models.appointment import Appointment
 from celery_app.utility.db import get_session
 from celery_app.worker import celery
 
+settings = get_settings()
+
 
 @celery.task(
-    name="send_appointment_notification",
-    queue="email",
+    name='send_appointment_notification',
+    queue='email',
     bind=True,
     max_retries=3,
 )
-def send_appointment_notification(self: Task, appointment_id: int):
+def send_appointment_notification(self: Task, appointment_id: int) -> dict:
+    """Отправляет уведомление о создании записи."""
     with get_session() as session:
         stmt = (
             select(Appointment)
@@ -30,32 +33,33 @@ def send_appointment_notification(self: Task, appointment_id: int):
 
         if appointment is None:
             return {
-                "message": f"Запись с id {appointment_id} не найдена",
-                "status": "skipped",
+                'message': f'Запись с id {appointment_id} не найдена',
+                'status': 'skipped',
             }
 
         user_email = appointment.user.email
         send_email.delay(
-            subject="Запись на приём",
+            subject='Запись на приём',
             to=user_email,
-            body=f"Привет, {appointment.user.first_name}! \n"
-            f"Ваша запись на приём на {appointment.appointment_time} ",
+            body=f'Привет, {appointment.user.first_name}! \n'
+            f'Ваша запись на приём на {appointment.appointment_time} ',
         )
 
         return {
-            "message": f"Запись на приём на {appointment.appointment_time} "
-            f"отправлена на почту {user_email}",
-            "status": "success",
+            'message': f'Запись на приём на {appointment.appointment_time} '
+            f'отправлена на почту {user_email}',
+            'status': 'success',
         }
 
 
 @celery.task(
-    name="send_appointment_reminder",
-    queue="email",
+    name='send_appointment_reminder',
+    queue='email',
     bind=True,
     max_retries=3,
 )
-def send_appointment_reminder(self: Task):
+def send_appointment_reminder(self: Task) -> dict:
+    """Отправляет напоминания о записях на завтра."""
     results = []
     with get_session() as session:
         tommorow = datetime.now().date() + timedelta(days=1)
@@ -70,8 +74,8 @@ def send_appointment_reminder(self: Task):
 
         if not appointments:
             return {
-                "message": f"На {tommorow} нет записей",
-                "status": "skipped",
+                'message': f'На {tommorow} нет записей',
+                'status': 'skipped',
             }
 
         for appointment in appointments:
@@ -79,45 +83,53 @@ def send_appointment_reminder(self: Task):
             if not user_email:
                 results.append(
                     {
-                        "message": f"Пользователь {appointment.user.username} не имеет email",
-                        "status": "skipped",
-                    }
+                        'message': (
+                            f'Пользователь {appointment.user.username}'
+                            ' не имеет email'
+                        ),
+                        'status': 'skipped',
+                    },
                 )
                 continue
             try:
                 send_email.delay(
-                    subject="Запись на приём",
+                    subject='Запись на приём',
                     to=user_email,
-                    body=f"Привет, {appointment.user.first_name}! \n"
-                    f"Ваша запись на приём на {appointment.appointment_time} ",
+                    body=f'Привет, {appointment.user.first_name}! \n'
+                    f'Ваша запись на приём на {appointment.appointment_time} ',
                 )
                 results.append(
                     {
-                        "message": f"""Запись на приём на {appointment.appointment_time} 
-                        отправлена на почту {user_email}
-                        """,
-                        "status": "success",
-                    }
+                        'message': (
+                            f'Запись на приём на'
+                            f' {appointment.appointment_time} '
+                            f'отправлена на почту {user_email}'
+                        ),
+                        'status': 'success',
+                    },
                 )
             except Exception as e:
                 results.append(
                     {
-                        "message": f"Ошибка при отправке записи на приём на {appointment.appointment_time}",
-                        "status": "failed",
-                        "error": str(e),
-                    }
+                        'message': (
+                            f'Ошибка при отправке записи на приём'
+                            f' на {appointment.appointment_time}'
+                        ),
+                        'status': 'failed',
+                        'error': str(e),
+                    },
                 )
 
         return {
-            "message": f"Обработано {len(results)} записей",
-            "status": "success",
-            "results": results,
+            'message': f'Обработано {len(results)} записей',
+            'status': 'success',
+            'results': results,
         }
 
 
 @celery.task(
-    name="send_email",
-    queue="email",
+    name='send_email',
+    queue='email',
     bind=True,
     max_retries=3,
 )
@@ -127,10 +139,11 @@ def send_email(
     to: str,
     body: str,
 ) -> None:
+    """Отправляет письмо на почту через SMTP."""
     msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = settings.smtp_from_email
-    msg["To"] = to
+    msg['Subject'] = subject
+    msg['From'] = settings.smtp_from_email
+    msg['To'] = to
     msg.set_content(body)
 
     try:

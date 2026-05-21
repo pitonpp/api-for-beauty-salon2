@@ -1,7 +1,6 @@
-"""Административные endpoint'ы: управление пользователями, мастерами, услугами, записями."""
+"""Административные endpoint'ы: управление пользователями и услугами."""
 
 from fastapi import APIRouter
-
 
 from app.api.dependencies import (
     AllowAdminDI,
@@ -32,7 +31,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/appointments",
+    '/appointments',
     response_model=list[AppointmentWithRelations],
 )
 async def get_appointments(
@@ -40,15 +39,16 @@ async def get_appointments(
     _: AllowAdminDI,
     appointment_service: AppointmentServiceDI,
 ) -> list[AppointmentWithRelations]:
+    """Возвращает список всех записей."""
     appointments = await appointment_service.get_appointments_with_relations(
-        session
+        session,
     )
 
     return to_schema_list(appointments, AppointmentWithRelations)
 
 
 @router.get(
-    "/appointments/{appointment_id}",
+    '/appointments/{appointment_id}',
     response_model=AppointmentWithRelations,
 )
 async def get_appointment(
@@ -57,6 +57,7 @@ async def get_appointment(
     appointment_id: int,
     appointment_service: AppointmentServiceDI,
 ) -> AppointmentWithRelations:
+    """Возвращает запись по ID."""
     appointment = await appointment_service.get_appointment_with_relations(
         session,
         appointment_id,
@@ -65,7 +66,7 @@ async def get_appointment(
 
 
 @router.post(
-    "/appointments",
+    '/appointments',
     response_model=AppointmentWithRelations,
 )
 async def create_appointment(
@@ -74,6 +75,7 @@ async def create_appointment(
     _: AllowAdminDI,
     appointment_service: AppointmentServiceDI,
 ) -> AppointmentWithRelations:
+    """Создаёт запись для любого пользователя."""
     appointment = await appointment_service.admin_create_appointment(
         request,
         session,
@@ -82,7 +84,7 @@ async def create_appointment(
 
 
 @router.patch(
-    "/appointments/{appointment_id}",
+    '/appointments/{appointment_id}',
     response_model=AppointmentWithRelations,
 )
 async def update_appointment(
@@ -92,6 +94,7 @@ async def update_appointment(
     appointment_service: AppointmentServiceDI,
     _: AllowAdminDI,
 ) -> AppointmentWithRelations:
+    """Обновляет запись."""
     appointment = await appointment_service.admin_update_appointment(
         request,
         session,
@@ -101,7 +104,7 @@ async def update_appointment(
 
 
 @router.post(
-    "/services",
+    '/services',
     response_model=ServiceShort,
 )
 async def create_service(
@@ -110,12 +113,13 @@ async def create_service(
     _: AllowAdminDI,
     request: ServiceCreate,
 ) -> ServiceShort:
+    """Создаёт новую услугу салона."""
     service = await service_manager.create_service(session, request)
     return to_schema(service, ServiceShort)
 
 
 @router.patch(
-    "/services/{service_id}",
+    '/services/{service_id}',
     response_model=ServiceShort,
 )
 async def update_service(
@@ -125,6 +129,7 @@ async def update_service(
     service_id: int,
     request: ServiceUpdate,
 ) -> ServiceShort:
+    """Обновляет услугу салона."""
     service = await service_manager.update_service(
         session,
         service_id,
@@ -134,7 +139,7 @@ async def update_service(
 
 
 @router.patch(
-    "/users/{user_id}",
+    '/users/{user_id}',
     response_model=UserDB,
 )
 async def update_user(
@@ -144,6 +149,7 @@ async def update_user(
     user: AllowAdminDI,
     user_id: int,
 ) -> UserDB:
+    """Обновляет пользователя."""
     user = await user_service.update_user(
         user_id,
         session,
@@ -154,7 +160,7 @@ async def update_user(
 
 
 @router.get(
-    "/users",
+    '/users',
     response_model=list[UserDB],
 )
 async def get_users(
@@ -162,12 +168,13 @@ async def get_users(
     _: AllowAdminDI,
     user_service: UserServiceDI,
 ) -> list[UserDB]:
+    """Возвращает список всех пользователей."""
     users = await user_service.get_users(session)
     return to_schema_list(users, UserDB)
 
 
 @router.get(
-    "/users/{user_id}",
+    '/users/{user_id}',
     response_model=UserDB,
 )
 async def get_user(
@@ -176,6 +183,7 @@ async def get_user(
     user_service: UserServiceDI,
     _: AllowAdminDI,
 ) -> UserDB:
+    """Возвращает пользователя по ID."""
     user = await user_service.get_object_or_404(
         user_id,
         session,
@@ -184,7 +192,7 @@ async def get_user(
 
 
 @router.get(
-    "/masters",
+    '/masters',
     response_model=list[MasterDB],
 )
 async def get_masters(
@@ -192,12 +200,13 @@ async def get_masters(
     master_manager: MasterManagerDI,
     _: AllowAdminDI,
 ) -> list[MasterDB]:
+    """Возвращает список всех мастеров."""
     masters = await master_manager.get_masters(session)
     return to_schema_list(masters, MasterDB)
 
 
 @router.get(
-    "/masters/{master_id}",
+    '/masters/{master_id}',
     response_model=MasterDB,
 )
 async def get_master(
@@ -206,6 +215,7 @@ async def get_master(
     master_manager: MasterManagerDI,
     _: AllowAdminDI,
 ) -> MasterDB:
+    """Возвращает мастера по ID."""
     master = await master_manager.get_master(
         session,
         master_id,
@@ -214,7 +224,7 @@ async def get_master(
 
 
 @router.patch(
-    "/masters/{master_id}",
+    '/masters/{master_id}',
     response_model=MasterDB,
 )
 async def update_master(
@@ -224,6 +234,7 @@ async def update_master(
     _: AllowAdminDI,
     request: MasterAdminUpdate,
 ) -> MasterDB:
+    """Обновляет данные мастера."""
     master = await master_manager.update_master(
         session,
         master_id,
@@ -233,7 +244,7 @@ async def update_master(
 
 
 @router.post(
-    "/masters",
+    '/masters',
     response_model=MasterDB,
 )
 async def create_master(
@@ -242,6 +253,7 @@ async def create_master(
     _: AllowAdminDI,
     request: MasterAdminCreate,
 ) -> MasterDB:
+    """Создаёт нового мастера."""
     master = await master_manager.create_master(
         session,
         request,
@@ -250,7 +262,7 @@ async def create_master(
 
 
 @router.patch(
-    "/masters/{master_id}/services/{service_id}",
+    '/masters/{master_id}/services/{service_id}',
     response_model=MasterServiceDB,
 )
 async def update_master_service(
@@ -261,6 +273,7 @@ async def update_master_service(
     request: MasterServiceUpdate,
     master_service_manager: MasterServiceManagerDI,
 ) -> MasterServiceDB:
+    """Обновляет услугу мастера."""
     service = await master_service_manager.update_master_service(
         session,
         service_id,
@@ -272,7 +285,7 @@ async def update_master_service(
 
 
 @router.post(
-    "/masters/{master_id}/services",
+    '/masters/{master_id}/services',
     response_model=MasterServiceDB,
 )
 async def create_master_service(
@@ -282,6 +295,7 @@ async def create_master_service(
     request: MasterServiceCreate,
     master_service_manager: MasterServiceManagerDI,
 ) -> MasterServiceDB:
+    """Создаёт услугу для мастера."""
     service = await master_service_manager.create_master_service_admin(
         session,
         request,
@@ -291,7 +305,7 @@ async def create_master_service(
 
 
 @router.get(
-    "/masters/{master_id}/services",
+    '/masters/{master_id}/services',
     response_model=list[MasterServiceDB],
 )
 async def get_master_services(
@@ -300,6 +314,7 @@ async def get_master_services(
     _: AllowAdminDI,
     master_service_manager: MasterServiceManagerDI,
 ) -> list[MasterServiceDB]:
+    """Возвращает услуги мастера."""
     services = await master_service_manager.get_master_services(
         session,
         master_id,
@@ -308,7 +323,7 @@ async def get_master_services(
 
 
 @router.get(
-    "/masters/{master_id}/services/{service_id}",
+    '/masters/{master_id}/services/{service_id}',
     response_model=MasterServiceDB,
 )
 async def get_master_service(
@@ -318,6 +333,7 @@ async def get_master_service(
     _: AllowAdminDI,
     master_service_manager: MasterServiceManagerDI,
 ) -> MasterServiceDB:
+    """Возвращает конкретную услугу мастера."""
     service = await master_service_manager.get_master_service(
         session,
         master_id,
