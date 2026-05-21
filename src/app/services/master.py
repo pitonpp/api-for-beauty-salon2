@@ -35,7 +35,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         """Меняет роль пользователя на MASTER."""
         user.role = UserRole.MASTER
         logger.info(
-            "Изменилась роль у пользователя username={}, role={}",
+            'Изменилась роль у пользователя username={}, role={}',
             user.username,
             user.role,
         )
@@ -48,11 +48,12 @@ class MasterManager(BaseService[Master, CRUDMaster]):
     ) -> Master:
         """Создаёт мастера и меняет роль пользователя на MASTER."""
         user = await self.user_service.get_object_or_404(
-            request.user_id, session,
+            request.user_id,
+            session,
         )
         if user.role == UserRole.MASTER:
             logger.warning(
-                "Попытка создать мастера с уже существующим user_id={}",
+                'Попытка создать мастера с уже существующим user_id={}',
                 user.id,
             )
             raise HTTPException(
@@ -63,7 +64,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         master = await self.create(request, session)
         await self._change_role(session, user)
         logger.info(
-            "Создан мастер: master_id={}, user_id={}",
+            'Создан мастер: master_id={}, user_id={}',
             master.id,
             user.id,
         )
@@ -79,7 +80,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         master = await self.get_master_by_user_id(session, user)
         updated = await self.update(session, master.id, request)
         logger.info(
-            "Мастер master_id={} обновлен",
+            'Мастер master_id={} обновлен',
             master.id,
         )
         return updated
@@ -95,7 +96,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
             user.role = UserRole.USER
             await session.commit()
             logger.info(
-                "Роль мастера user_id={} username={} понижена до USER",
+                'Роль мастера user_id={} username={} понижена до USER',
                 user_id,
                 user.username,
             )
@@ -125,7 +126,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
         master = await self.crud.get_one_by(session, user_id=user.id)
         if master is None:
             logger.warning(
-                "Пользователь username={}, user_id={} не является мастером",
+                'Пользователь username={}, user_id={} не является мастером',
                 user.username,
                 user.id,
             )
@@ -135,7 +136,7 @@ class MasterManager(BaseService[Master, CRUDMaster]):
             )
         if user.role != UserRole.MASTER:
             logger.warning(
-                "Попытка выдать себя за мастера: username={}, user_id={}",
+                'Попытка выдать себя за мастера: username={}, user_id={}',
                 user.username,
                 user.id,
             )

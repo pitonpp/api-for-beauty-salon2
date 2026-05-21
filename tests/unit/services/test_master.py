@@ -23,13 +23,16 @@ class TestGetMasterByUserId:
             new=AsyncMock(return_value=mock_master),
         ):
             result = await master_manager.get_master_by_user_id(
-                mock_session, master_user,
+                mock_session,
+                master_user,
             )
 
         assert result is mock_master
 
     async def test_raises_400_when_master_not_found(
-        self, mock_session, master_user,
+        self,
+        mock_session,
+        master_user,
     ):
         from app.services.master import master_manager
 
@@ -40,13 +43,16 @@ class TestGetMasterByUserId:
         ):
             with pytest.raises(HTTPException) as exc:
                 await master_manager.get_master_by_user_id(
-                    mock_session, master_user,
+                    mock_session,
+                    master_user,
                 )
 
         assert exc.value.status_code == 400
 
     async def test_raises_400_when_role_mismatch(
-        self, mock_session, regular_user,
+        self,
+        mock_session,
+        regular_user,
     ):
         from app.services.master import master_manager
 
@@ -60,7 +66,8 @@ class TestGetMasterByUserId:
         ):
             with pytest.raises(HTTPException) as exc:
                 await master_manager.get_master_by_user_id(
-                    mock_session, regular_user,
+                    mock_session,
+                    regular_user,
                 )
 
         assert exc.value.status_code == 400

@@ -22,16 +22,18 @@ from ..dependencies import (
 router = APIRouter()
 
 
-@router.post("/sign_up", response_model=UserShort)
+@router.post('/sign_up', response_model=UserShort)
 async def sign_up(
-    session: SessionDI, request: UserCreate, user_service: UserServiceDI,
+    session: SessionDI,
+    request: UserCreate,
+    user_service: UserServiceDI,
 ) -> UserShort:
     """Регистрирует нового пользователя."""
     user = await user_service.create_user(session, request)
     return to_schema(user, UserShort)
 
 
-@router.get("/me", response_model=UserDB)
+@router.get('/me', response_model=UserDB)
 async def get_me(
     session: SessionDI,
     user: AllowUserDI,
@@ -40,7 +42,7 @@ async def get_me(
     return to_schema(user, UserDB)
 
 
-@router.patch("/me", response_model=UserDB)
+@router.patch('/me', response_model=UserDB)
 async def update_me(
     session: SessionDI,
     user: AllowUserDI,
@@ -53,7 +55,7 @@ async def update_me(
 
 
 @router.get(
-    "/me/appointments",
+    '/me/appointments',
     response_model=list[AppointmentShort],
 )
 async def get_appointments(
@@ -63,13 +65,14 @@ async def get_appointments(
 ) -> list[AppointmentShort]:
     """Возвращает записи текущего пользователя."""
     appointments = await appointment_service.get_user_appointments(
-        session, user,
+        session,
+        user,
     )
     return to_schema_list(appointments, AppointmentShort)
 
 
 @router.get(
-    "/me/appointments/{appointment_id}",
+    '/me/appointments/{appointment_id}',
     response_model=AppointmentShort,
 )
 async def get_appointment(
@@ -88,7 +91,7 @@ async def get_appointment(
 
 
 @router.patch(
-    "/me/appointments/{appointment_id}",
+    '/me/appointments/{appointment_id}',
     response_model=AppointmentShort,
 )
 async def update_appointment(

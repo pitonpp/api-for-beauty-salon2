@@ -21,37 +21,37 @@ class Appointment(CommonBaseMixin, Base):
 
     client_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id"),
+        ForeignKey('user.id'),
         nullable=False,
     )
     master_service_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("masterservice.id"),
+        ForeignKey('masterservice.id'),
         nullable=False,
     )
     appointment_time: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        comment="Время записи",
+        comment='Время записи',
     )
     status: Mapped[AppointmentStatus] = mapped_column(
         Enum(AppointmentStatus),
         default=AppointmentStatus.SCHEDULED.value,
-        comment="Статус записи",
+        comment='Статус записи',
     )
     price_at_booking: Mapped[Decimal] = mapped_column(
         Numeric(precision=8, scale=2),
         nullable=False,
-        comment="Стоимость услуги",
+        comment='Стоимость услуги',
     )
 
-    user: Mapped["User"] = relationship(
-        "User",
-        back_populates="appointments",
+    user: Mapped['User'] = relationship(
+        'User',
+        back_populates='appointments',
     )
-    master_service: Mapped["MasterService"] = relationship(
-        "MasterService",
-        back_populates="appointments",
+    master_service: Mapped['MasterService'] = relationship(
+        'MasterService',
+        back_populates='appointments',
     )
 
     @property

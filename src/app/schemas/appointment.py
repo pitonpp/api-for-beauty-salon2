@@ -14,7 +14,7 @@ from .user import UserShort
 TIME_EXAMPLE = (
     (datetime.now(timezone.utc) + timedelta(hours=1))
     .replace(second=0, microsecond=0)
-    .isoformat(timespec="minutes")
+    .isoformat(timespec='minutes')
 )
 
 
@@ -22,7 +22,9 @@ class AppointmentBase(BaseModel):
     """Базовая схема записи."""
 
     appointment_time: datetime = Field(
-        ..., description="Время записи", examples=[TIME_EXAMPLE],
+        ...,
+        description='Время записи',
+        examples=[TIME_EXAMPLE],
     )
 
 
@@ -51,7 +53,7 @@ class AppointmentUpdate(AppointmentCreate):
     appointment_time: datetime | None = None
     status: Literal[AppointmentStatus.CANCELED] | None = Field(
         None,
-        description="Пользователь может только отменить запись",
+        description='Пользователь может только отменить запись',
     )
 
 
@@ -59,7 +61,8 @@ class AppointmentMasterUpdate(BaseModel):
     """Схема обновления записи мастером."""
 
     status: Literal[AppointmentStatus.COMPLETED] | None = Field(
-        None, description="Мастер может завершить запись",
+        None,
+        description='Мастер может завершить запись',
     )
 
 

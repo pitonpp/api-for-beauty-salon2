@@ -173,7 +173,9 @@ class TestUpdateMasterService:
         assert exc.value.status_code == 403
 
     async def test_admin_can_update_any_service(
-        self, mock_session, admin_user,
+        self,
+        mock_session,
+        admin_user,
     ):
         from app.services.master_service import master_service_manager
 

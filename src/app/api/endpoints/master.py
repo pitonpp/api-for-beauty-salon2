@@ -28,7 +28,7 @@ from app.schemas.master_service import (
 router = APIRouter()
 
 
-@router.get("", response_model=list[MasterShort])
+@router.get('', response_model=list[MasterShort])
 async def get_masters(
     session: SessionDI,
     master_manager: MasterManagerDI,
@@ -38,7 +38,7 @@ async def get_masters(
     return to_schema_list(masters, MasterShort)
 
 
-@router.patch("/me", response_model=MasterShort)
+@router.patch('/me', response_model=MasterShort)
 async def update_me(
     session: SessionDI,
     user: AllowMasterAdminDI,
@@ -50,7 +50,7 @@ async def update_me(
     return to_schema(master, MasterShort)
 
 
-@router.get("/me", response_model=MasterShort)
+@router.get('/me', response_model=MasterShort)
 async def get_me(
     session: SessionDI,
     user: AllowMasterAdminDI,
@@ -61,7 +61,7 @@ async def get_me(
     return to_schema(master, MasterShort)
 
 
-@router.get("/me/services", response_model=list[MasterServiceShort])
+@router.get('/me/services', response_model=list[MasterServiceShort])
 async def get_me_services(
     session: SessionDI,
     user: AllowMasterAdminDI,
@@ -75,7 +75,7 @@ async def get_me_services(
     return to_schema_list(services, MasterServiceShort)
 
 
-@router.patch("/me/services/{service_id}", response_model=MasterServiceShort)
+@router.patch('/me/services/{service_id}', response_model=MasterServiceShort)
 async def update_my_service(
     service_id: int,
     session: SessionDI,
@@ -93,7 +93,7 @@ async def update_my_service(
     return to_schema(service, MasterServiceShort)
 
 
-@router.post("/me/services", response_model=MasterServiceShort)
+@router.post('/me/services', response_model=MasterServiceShort)
 async def create_my_service(
     session: SessionDI,
     user: AllowMasterAdminDI,
@@ -110,7 +110,8 @@ async def create_my_service(
 
 
 @router.get(
-    "/me/appointments", response_model=list[AppointmentWithRelationsMaster],
+    '/me/appointments',
+    response_model=list[AppointmentWithRelationsMaster],
 )
 async def get_my_appointments(
     session: SessionDI,
@@ -126,7 +127,7 @@ async def get_my_appointments(
 
 
 @router.get(
-    "/me/appointments/{appointment_id}",
+    '/me/appointments/{appointment_id}',
     response_model=AppointmentWithRelationsMaster,
 )
 async def get_my_appointment(
@@ -145,7 +146,7 @@ async def get_my_appointment(
 
 
 @router.patch(
-    "/me/appointments/{appointment_id}",
+    '/me/appointments/{appointment_id}',
     response_model=AppointmentWithRelationsMaster,
 )
 async def update_my_appointment(
@@ -164,7 +165,7 @@ async def update_my_appointment(
     return to_schema(appointment, AppointmentWithRelationsMaster)
 
 
-@router.get("/{master_id}", response_model=MasterShort)
+@router.get('/{master_id}', response_model=MasterShort)
 async def get_master(
     master_id: int,
     session: SessionDI,
@@ -178,7 +179,7 @@ async def get_master(
     return to_schema(master, MasterShort)
 
 
-@router.get("/{master_id}/services", response_model=list[MasterServiceShort])
+@router.get('/{master_id}/services', response_model=list[MasterServiceShort])
 async def get_master_services(
     master_id: int,
     session: SessionDI,
@@ -193,7 +194,8 @@ async def get_master_services(
 
 
 @router.get(
-    "/{master_id}/services/{service_id}", response_model=MasterServiceShort,
+    '/{master_id}/services/{service_id}',
+    response_model=MasterServiceShort,
 )
 async def get_master_service(
     master_id: int,

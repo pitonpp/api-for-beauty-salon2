@@ -41,7 +41,7 @@ class BaseService(Generic[ModelType, CRUDType]):
             if column is not None and column.comment:
                 return column.comment
 
-        return " ".join(word.capitalize() for word in field.split("_"))
+        return ' '.join(word.capitalize() for word in field.split('_'))
 
     @classmethod
     def _get_unique_fields(cls) -> list[str]:
@@ -54,13 +54,15 @@ class BaseService(Generic[ModelType, CRUDType]):
 
     @classmethod
     def _handle_integrity_error(
-        cls, e: IntegrityError, operation: str,
+        cls,
+        e: IntegrityError,
+        operation: str,
     ) -> None:
         """Обрабатывает IntegrityError с понятным сообщением об ошибке."""
         error_msg = str(e.orig).lower()
 
-        if "uq_service_master" in error_msg:
-            logger.warning("Попытка добавить уже созданную услугу")
+        if 'uq_service_master' in error_msg:
+            logger.warning('Попытка добавить уже созданную услугу')
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=SERVICE_ALREADY_ADDED,
@@ -78,20 +80,22 @@ class BaseService(Generic[ModelType, CRUDType]):
                     detail=f"Поле '{field_name}' уже занято",
                 )
 
-        logger.opt(exception=True).warning("Ошибка целостности: {}", e)
+        logger.opt(exception=True).warning('Ошибка целостности: {}', e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=CONFLICT_SAVING,
         )
 
     async def get_object_or_404(
-        self, obj_id: int, session: AsyncSession,
+        self,
+        obj_id: int,
+        session: AsyncSession,
     ) -> ModelType:
         """Возвращает объект или выбрасывает 404."""
         obj = await self.crud.get(obj_id, session)
         if not obj:
             logger.warning(
-                "{} id={} не найден",
+                '{} id={} не найден',
                 self.model.__name__,
                 obj_id,
             )
@@ -112,7 +116,7 @@ class BaseService(Generic[ModelType, CRUDType]):
 
         except IntegrityError as e:
             await session.rollback()
-            self._handle_integrity_error(e, "create")
+            self._handle_integrity_error(e, 'create')
 
     async def update(
         self,
@@ -129,4 +133,4 @@ class BaseService(Generic[ModelType, CRUDType]):
 
         except IntegrityError as e:
             await session.rollback()
-            self._handle_integrity_error(e, "update")
+            self._handle_integrity_error(e, 'update')

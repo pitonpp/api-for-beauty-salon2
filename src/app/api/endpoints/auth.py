@@ -10,7 +10,7 @@ from ..dependencies import AllowUserDI, AuthServiceDI, SessionDI
 router = APIRouter()
 
 
-@router.post("/login", response_model=Token)
+@router.post('/login', response_model=Token)
 async def login(
     session: SessionDI,
     auth_service: AuthServiceDI,
@@ -19,11 +19,14 @@ async def login(
 ) -> Token:
     """Аутентифицирует пользователя."""
     return await auth_service.login(
-        session, form_data.username, form_data.password, response,
+        session,
+        form_data.username,
+        form_data.password,
+        response,
     )
 
 
-@router.post("/logout", response_description="Вы успешно вышли.")
+@router.post('/logout', response_description='Вы успешно вышли.')
 async def logout(
     session: SessionDI,
     auth_service: AuthServiceDI,
@@ -36,7 +39,7 @@ async def logout(
     await auth_service.logout(response, refresh_token, session)
 
 
-@router.post("/refresh", response_model=Token)
+@router.post('/refresh', response_model=Token)
 async def refresh(
     session: SessionDI,
     auth_service: AuthServiceDI,

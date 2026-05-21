@@ -18,14 +18,14 @@ class UserCreate(BaseModel):
     last_name: FirstAndLastName | None = None
     password: Password
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra='forbid')
 
 
 class Token(BaseModel):
     """Схема JWT-токена."""
 
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = 'bearer'
 
 
 class TokenData(BaseModel):

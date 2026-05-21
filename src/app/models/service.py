@@ -18,15 +18,15 @@ class Service(CommonBaseMixin, Base):
         String(100),
         unique=True,
         nullable=False,
-        comment="Название услуги",
+        comment='Название услуги',
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
-        comment="Активна ли услуга",
+        comment='Активна ли услуга',
     )
 
-    master_services: Mapped[list["MasterService"]] = relationship(
-        "MasterService",
-        back_populates="service",
+    master_services: Mapped[list['MasterService']] = relationship(
+        'MasterService',
+        back_populates='service',
     )

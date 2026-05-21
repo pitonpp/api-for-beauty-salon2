@@ -15,7 +15,7 @@ class RabbitMQConnectionManager:
         """Инициализирует менеджер соединения RabbitMQ."""
         self.connection: AbstractRobustConnection | None = None
 
-    async def connect(self) -> "RabbitMQConnectionManager":
+    async def connect(self) -> 'RabbitMQConnectionManager':
         """Устанавливает соединение с RabbitMQ."""
         if self.connection:
             return self
@@ -34,7 +34,7 @@ class RabbitMQConnectionManager:
     async def get_connect(self) -> AbstractRobustConnection:
         """Возвращает соединение с RabbitMQ или raise."""
         if not self.connection:
-            raise RuntimeError("RabbitMQ соединение не установлено")
+            raise RuntimeError('RabbitMQ соединение не установлено')
 
         return self.connection
 

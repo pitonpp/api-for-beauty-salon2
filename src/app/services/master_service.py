@@ -51,7 +51,7 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
         result = await session.execute(stmt)
         if result.scalar_one_or_none():
             logger.warning(
-                "У мастера master_id={} уже есть услуга service_id={}",
+                'У мастера master_id={} уже есть услуга service_id={}',
                 master_id,
                 service_id,
             )
@@ -101,15 +101,15 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
             master.id,
         )
         request_data = request.model_dump()
-        request_data["master_id"] = master.id
+        request_data['master_id'] = master.id
         master_service = await self.create(
             request_data,
             session,
         )
 
         logger.info(
-            "Создана услуга master_service_id={} для master_id={} "
-            "service_id={}",
+            'Создана услуга master_service_id={} для master_id={} '
+            'service_id={}',
             master_service.id,
             master.id,
             request.service_id,
@@ -124,10 +124,10 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
     ) -> MasterService:
         """Создаёт услугу для указанного мастера (администратором)."""
         request_data = request.model_dump()
-        request_data["master_id"] = master_id
+        request_data['master_id'] = master_id
         await self.validate_create_common(
             session,
-            request_data["service_id"],
+            request_data['service_id'],
             master_id,
             True,
         )
@@ -136,11 +136,11 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
             session,
         )
         logger.info(
-            "Создана услуга master_service_id={} для master_id={} "
-            "service_id={}",
+            'Создана услуга master_service_id={} для master_id={} '
+            'service_id={}',
             master_service.id,
             master_id,
-            request_data["service_id"],
+            request_data['service_id'],
         )
         return master_service
 
@@ -175,8 +175,8 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
             and master_service.master_id != master.id
         ):
             logger.warning(
-                "Попытка изменить чужую услугу master_service_id={}: "
-                "user_id={}, username={}",
+                'Попытка изменить чужую услугу master_service_id={}: '
+                'user_id={}, username={}',
                 master_service_id,
                 user.id,
                 user.username,
@@ -193,7 +193,7 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
             master_service,
         )
         logger.info(
-            "Изменена услуга master_service_id={}",
+            'Изменена услуга master_service_id={}',
             master_service_id,
         )
         return updated
@@ -232,7 +232,7 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
 
         if service is None:
             logger.warning(
-                "Услуга service_id={} мастера master_id={} не найдена",
+                'Услуга service_id={} мастера master_id={} не найдена',
                 service_id,
                 master_id,
             )
@@ -277,7 +277,7 @@ class MasterServiceManager(BaseService[MasterService, CRUDMasterService]):
 
         if service is None:
             logger.warning(
-                "Услуга service_id={} мастера master_id={} не найдена",
+                'Услуга service_id={} мастера master_id={} не найдена',
                 service_id,
                 master.id,
             )

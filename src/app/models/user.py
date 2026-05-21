@@ -19,13 +19,13 @@ class User(CommonBaseMixin, Base):
         String(12),
         unique=True,
         nullable=False,
-        comment="Номер телефона пользователя в формате +7XXXXXXXXXX",
+        comment='Номер телефона пользователя в формате +7XXXXXXXXXX',
     )
     username: Mapped[str] = mapped_column(
         String(100),
         unique=True,
         nullable=False,
-        comment="Уникальное имя пользователя (логин)",
+        comment='Уникальное имя пользователя (логин)',
     )
     email: Mapped[str] = mapped_column(
         String(200),
@@ -36,33 +36,33 @@ class User(CommonBaseMixin, Base):
     first_name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
-        comment="Имя пользователя",
+        comment='Имя пользователя',
     )
     last_name: Mapped[str] = mapped_column(
         String(100),
         nullable=True,
-        comment="Фамилия пользователя",
+        comment='Фамилия пользователя',
     )
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole),
         default=UserRole.USER.value,
         nullable=False,
-        comment="Роль пользователя",
+        comment='Роль пользователя',
     )
     password: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
-        comment="Хэшированный пароль",
+        comment='Хэшированный пароль',
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
-        comment="Активен ли пользователь",
+        comment='Активен ли пользователь',
     )
 
-    appointments: Mapped["Appointment"] = relationship(
-        "Appointment",
-        back_populates="user",
+    appointments: Mapped['Appointment'] = relationship(
+        'Appointment',
+        back_populates='user',
     )
 
     @property

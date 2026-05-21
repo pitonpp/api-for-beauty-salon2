@@ -110,7 +110,9 @@ class CRUDAppointment(
         return stmt.where(self.model.id == obj_id)
 
     async def _reload_with_relations(
-        self, session: AsyncSession, obj: Appointment,
+        self,
+        session: AsyncSession,
+        obj: Appointment,
     ) -> Appointment:
         """Перезагружает объект с подгруженными связанными сущностями."""
         stmt = (
@@ -136,7 +138,8 @@ class CRUDAppointment(
     ) -> Appointment:
         """Создаёт запись и возвращает с подгруженными связями."""
         return await self._reload_with_relations(
-            session, await super().create(request, session),
+            session,
+            await super().create(request, session),
         )
 
     async def update(
@@ -150,11 +153,14 @@ class CRUDAppointment(
     ) -> Appointment:
         """Обновляет запись и возвращает с подгруженными связями."""
         return await self._reload_with_relations(
-            session, await super().update(db_obj, request, session),
+            session,
+            await super().update(db_obj, request, session),
         )
 
     async def get_with_relations(
-        self, session: AsyncSession, obj_id: int,
+        self,
+        session: AsyncSession,
+        obj_id: int,
     ) -> Appointment | None:
         """Возвращает запись с пользователем, услугой и мастером."""
         stmt = self._get_statement(appointment_id=obj_id)
@@ -162,7 +168,10 @@ class CRUDAppointment(
         return result.scalar_one_or_none()
 
     async def get_multi_with_relations(
-        self, session: AsyncSession, skip: int = 0, limit: int = 10,
+        self,
+        session: AsyncSession,
+        skip: int = 0,
+        limit: int = 10,
     ) -> list[Appointment]:
         """Возвращает список записей со всеми связанными данными."""
         stmt = self._get_statement(limit=limit, skip=skip, multi=True)
@@ -178,7 +187,10 @@ class CRUDAppointment(
     ) -> list[Appointment]:
         """Возвращает записи пользователя со связанными данными."""
         stmt = self._get_statement_for_user(
-            user_id=user_id, skip=skip, limit=limit, multi=True,
+            user_id=user_id,
+            skip=skip,
+            limit=limit,
+            multi=True,
         )
         result = await session.execute(stmt)
         return result.scalars().all()
@@ -222,7 +234,8 @@ class CRUDAppointment(
     ) -> Appointment | None:
         """Возвращает конкретную запись мастера со связанными данными."""
         stmt = self._get_statement_for_master(
-            master_id=master_id, obj_id=appointment_id,
+            master_id=master_id,
+            obj_id=appointment_id,
         )
         result = await session.execute(stmt)
         return result.scalar_one_or_none()

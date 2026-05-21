@@ -15,7 +15,7 @@ class ServiceCreate(ServiceBase):
     """Схема создания услуги."""
 
     model_config = ConfigDict(
-        extra="forbid",
+        extra='forbid',
     )
 
 

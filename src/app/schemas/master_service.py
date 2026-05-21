@@ -16,7 +16,7 @@ class MasterServiceCreate(BaseModel):
     description: Description
     duration: timedelta
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra='forbid')
 
 
 class MasterServiceUpdate(BaseModel):
@@ -27,7 +27,7 @@ class MasterServiceUpdate(BaseModel):
     duration: timedelta | None = None
     is_active: bool | None = None
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra='forbid')
 
 
 class MasterServiceShort(BaseModel):

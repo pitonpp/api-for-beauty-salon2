@@ -6,7 +6,7 @@ from app.constants import ENCODING
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 
-ENV_FILE = BASE_DIR / "infra" / ".env"
+ENV_FILE = BASE_DIR / 'infra' / '.env'
 
 
 class Settings(BaseSettings):
@@ -71,25 +71,25 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=ENV_FILE if ENV_FILE.exists() else None,
         env_file_encoding=ENCODING,
-        extra="ignore",
+        extra='ignore',
     )
 
     @property
     def async_database_url(self) -> str:
         """URL для асинхронного подключения к PostgreSQL через asyncpg."""
         return (
-            f"postgresql+asyncpg://"
-            f"{self.postgres_user}:{self.postgres_password}"
-            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+            f'postgresql+asyncpg://'
+            f'{self.postgres_user}:{self.postgres_password}'
+            f'@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}'
         )
 
     @property
     def sync_database_url(self) -> str:
         """URL для синхронного подключения к PostgreSQL."""
         return (
-            f"postgresql://"
-            f"{self.postgres_user}:{self.postgres_password}"
-            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+            f'postgresql://'
+            f'{self.postgres_user}:{self.postgres_password}'
+            f'@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}'
         )
 
 

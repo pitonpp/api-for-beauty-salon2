@@ -31,7 +31,8 @@ AllowMasterAdminDI = Annotated[
 
 
 AppointmentServiceDI = Annotated[
-    AppointmentService, Depends(lambda: appointment_service),
+    AppointmentService,
+    Depends(lambda: appointment_service),
 ]
 UserServiceDI = Annotated[UserService, Depends(lambda: user_service)]
 ServiceManagerDI = Annotated[ServiceManager, Depends(lambda: service_manager)]
@@ -39,7 +40,8 @@ AuthServiceDI = Annotated[AuthService, Depends(lambda: auth_service)]
 TokenServiceDI = Annotated[TokenService, Depends(lambda: token_service)]
 MasterManagerDI = Annotated[MasterManager, Depends(lambda: master_manager)]
 MasterServiceManagerDI = Annotated[
-    MasterServiceManager, Depends(lambda: master_service_manager),
+    MasterServiceManager,
+    Depends(lambda: master_service_manager),
 ]
 
 
@@ -49,7 +51,8 @@ def to_schema(item: ModelType, schema: Type[SchemaType]) -> SchemaType:
 
 
 def to_schema_list(
-    items: list[ModelType], schema: Type[SchemaType],
+    items: list[ModelType],
+    schema: Type[SchemaType],
 ) -> list[SchemaType]:
     """Конвертирует список моделей ORM в список Pydantic-схем."""
     return [schema.model_validate(item) for item in items]

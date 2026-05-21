@@ -31,23 +31,28 @@ class ServiceManager(BaseService[Service, CRUDService]):
         return await self.crud.get_multi(session)
 
     async def create_service(
-        self, session: AsyncSession, request: ServiceCreate,
+        self,
+        session: AsyncSession,
+        request: ServiceCreate,
     ) -> Service:
         """Создаёт новую услугу салона."""
         service = await self.crud.create(request, session)
         logger.info(
-            "Создана услуга name={}",
+            'Создана услуга name={}',
             request.name,
         )
         return service
 
     async def update_service(
-        self, session: AsyncSession, service_id: int, request: ServiceUpdate,
+        self,
+        session: AsyncSession,
+        service_id: int,
+        request: ServiceUpdate,
     ) -> Service:
         """Обновляет услугу салона."""
         service = await self.update(session, service_id, request)
         logger.info(
-            "Обновлена услуга service_id={}",
+            'Обновлена услуга service_id={}',
             service_id,
         )
         return service

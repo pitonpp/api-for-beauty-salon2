@@ -18,7 +18,7 @@ class MasterAdminCreate(MasterBase):
     experience: PositiveInt
 
     model_config = ConfigDict(
-        extra="forbid",
+        extra='forbid',
     )
 
 
@@ -28,7 +28,7 @@ class MasterUpdate(BaseModel):
     bio: Description | None = None
 
     model_config = ConfigDict(
-        extra="forbid",
+        extra='forbid',
     )
 
 

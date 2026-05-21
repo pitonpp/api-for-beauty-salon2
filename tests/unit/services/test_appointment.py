@@ -11,7 +11,9 @@ class TestCheckPermissions:
     """AppointmentService._check_permissions — чистая логика без моков."""
 
     def test_admin_can_access_any_appointment(
-        self, appointment_service_, admin_user,
+        self,
+        appointment_service_,
+        admin_user,
     ):
         service = appointment_service_
         appointment = MagicMock()
@@ -20,7 +22,9 @@ class TestCheckPermissions:
         service._check_permissions(admin_user, appointment)
 
     def test_owner_can_access_own_appointment(
-        self, appointment_service_, regular_user,
+        self,
+        appointment_service_,
+        regular_user,
     ):
         service = appointment_service_
         appointment = MagicMock()
@@ -57,7 +61,9 @@ class TestCheckPermissions:
             service._check_permissions(regular_user, None)
 
     def test_master_role_obeys_same_rule(
-        self, appointment_service_, master_user,
+        self,
+        appointment_service_,
+        master_user,
     ):
         service = appointment_service_
 
@@ -79,7 +85,9 @@ class TestCheckTimeAvailable:
     """
 
     async def test_past_time_raises_400(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
 
@@ -93,7 +101,9 @@ class TestCheckTimeAvailable:
         assert exc.value.status_code == 400
 
     async def test_same_day_passes_past_check(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         """Граница: appointment_time.date() == now не должно кидать 400."""
         service = appointment_service_
@@ -110,7 +120,9 @@ class TestCheckTimeAvailable:
         )
 
     async def test_overlap_raises_409(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
         mock_result = MagicMock()
@@ -127,7 +139,9 @@ class TestCheckTimeAvailable:
         assert exc.value.status_code == 409
 
     async def test_adjacent_times_are_ok(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         """[10:00, 11:00) и [11:00, 12:00) — не пересечение."""
         service = appointment_service_
@@ -142,7 +156,9 @@ class TestCheckTimeAvailable:
         )
 
     async def test_exclude_id_ignores_conflict(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
         mock_result = MagicMock()
@@ -300,7 +316,9 @@ class TestUpdateAppointment:
 
 class TestAdminCreateAppointment:
     async def test_creates_via_create_appointment(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
         request = MagicMock()
@@ -329,14 +347,17 @@ class TestAdminCreateAppointment:
             ),
         ):
             result = await service.admin_create_appointment(
-                request=request, session=mock_session,
+                request=request,
+                session=mock_session,
             )
             assert result is mock_appointment
 
 
 class TestAdminUpdateAppointment:
     async def test_updates_time_and_master_service(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
         request = MagicMock()
@@ -377,7 +398,9 @@ class TestAdminUpdateAppointment:
             mock_check_time.assert_called_once()
 
     async def test_skips_time_check_when_no_changes(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
         request = MagicMock()
@@ -436,7 +459,9 @@ class TestMasterUpdateAppointment:
 
 class TestValidateAndGetServiceAndMaster:
     async def test_returns_master_service(
-        self, appointment_service_, mock_session,
+        self,
+        appointment_service_,
+        mock_session,
     ):
         service = appointment_service_
         mock_master_service = MagicMock()

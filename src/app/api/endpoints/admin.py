@@ -31,7 +31,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/appointments",
+    '/appointments',
     response_model=list[AppointmentWithRelations],
 )
 async def get_appointments(
@@ -48,7 +48,7 @@ async def get_appointments(
 
 
 @router.get(
-    "/appointments/{appointment_id}",
+    '/appointments/{appointment_id}',
     response_model=AppointmentWithRelations,
 )
 async def get_appointment(
@@ -66,7 +66,7 @@ async def get_appointment(
 
 
 @router.post(
-    "/appointments",
+    '/appointments',
     response_model=AppointmentWithRelations,
 )
 async def create_appointment(
@@ -84,7 +84,7 @@ async def create_appointment(
 
 
 @router.patch(
-    "/appointments/{appointment_id}",
+    '/appointments/{appointment_id}',
     response_model=AppointmentWithRelations,
 )
 async def update_appointment(
@@ -104,7 +104,7 @@ async def update_appointment(
 
 
 @router.post(
-    "/services",
+    '/services',
     response_model=ServiceShort,
 )
 async def create_service(
@@ -119,7 +119,7 @@ async def create_service(
 
 
 @router.patch(
-    "/services/{service_id}",
+    '/services/{service_id}',
     response_model=ServiceShort,
 )
 async def update_service(
@@ -139,7 +139,7 @@ async def update_service(
 
 
 @router.patch(
-    "/users/{user_id}",
+    '/users/{user_id}',
     response_model=UserDB,
 )
 async def update_user(
@@ -160,7 +160,7 @@ async def update_user(
 
 
 @router.get(
-    "/users",
+    '/users',
     response_model=list[UserDB],
 )
 async def get_users(
@@ -174,7 +174,7 @@ async def get_users(
 
 
 @router.get(
-    "/users/{user_id}",
+    '/users/{user_id}',
     response_model=UserDB,
 )
 async def get_user(
@@ -192,7 +192,7 @@ async def get_user(
 
 
 @router.get(
-    "/masters",
+    '/masters',
     response_model=list[MasterDB],
 )
 async def get_masters(
@@ -206,7 +206,7 @@ async def get_masters(
 
 
 @router.get(
-    "/masters/{master_id}",
+    '/masters/{master_id}',
     response_model=MasterDB,
 )
 async def get_master(
@@ -224,7 +224,7 @@ async def get_master(
 
 
 @router.patch(
-    "/masters/{master_id}",
+    '/masters/{master_id}',
     response_model=MasterDB,
 )
 async def update_master(
@@ -244,7 +244,7 @@ async def update_master(
 
 
 @router.post(
-    "/masters",
+    '/masters',
     response_model=MasterDB,
 )
 async def create_master(
@@ -262,7 +262,7 @@ async def create_master(
 
 
 @router.patch(
-    "/masters/{master_id}/services/{service_id}",
+    '/masters/{master_id}/services/{service_id}',
     response_model=MasterServiceDB,
 )
 async def update_master_service(
@@ -285,7 +285,7 @@ async def update_master_service(
 
 
 @router.post(
-    "/masters/{master_id}/services",
+    '/masters/{master_id}/services',
     response_model=MasterServiceDB,
 )
 async def create_master_service(
@@ -305,7 +305,7 @@ async def create_master_service(
 
 
 @router.get(
-    "/masters/{master_id}/services",
+    '/masters/{master_id}/services',
     response_model=list[MasterServiceDB],
 )
 async def get_master_services(
@@ -323,7 +323,7 @@ async def get_master_services(
 
 
 @router.get(
-    "/masters/{master_id}/services/{service_id}",
+    '/masters/{master_id}/services/{service_id}',
     response_model=MasterServiceDB,
 )
 async def get_master_service(

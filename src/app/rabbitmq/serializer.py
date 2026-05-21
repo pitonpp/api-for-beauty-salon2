@@ -13,7 +13,7 @@ class JSONSerializer:
     def serialize(data: MessageType) -> bytes:
         """Сериализует сообщение в JSON."""
         if isinstance(data, BaseModel):
-            payload = data.model_dump(mode="json")
+            payload = data.model_dump(mode='json')
         else:
             payload = data
         return json.dumps(payload, default=str).encode()

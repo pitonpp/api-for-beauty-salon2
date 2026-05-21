@@ -16,7 +16,7 @@ from ..dependencies import (
 router = APIRouter()
 
 
-@router.get("", response_model=list[ServiceShort])
+@router.get('', response_model=list[ServiceShort])
 async def get_services(
     session: SessionDI,
     service_manager: ServiceManagerDI,
@@ -26,7 +26,7 @@ async def get_services(
     return to_schema_list(services, ServiceShort)
 
 
-@router.get("/{service_id}", response_model=ServiceShort)
+@router.get('/{service_id}', response_model=ServiceShort)
 async def get_service(
     session: SessionDI,
     service_manager: ServiceManagerDI,

@@ -16,7 +16,7 @@ from app.schemas.appointment import (
 router = APIRouter()
 
 
-@router.post("/{master_service_id}", response_model=AppointmentShort)
+@router.post('/{master_service_id}', response_model=AppointmentShort)
 async def create_appointment(
     master_service_id: int,
     session: SessionDI,

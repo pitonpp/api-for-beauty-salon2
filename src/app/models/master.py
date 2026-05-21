@@ -16,7 +16,7 @@ class Master(CommonBaseMixin, Base):
 
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id"),
+        ForeignKey('user.id'),
         nullable=False,
     )
     bio: Mapped[str] = mapped_column(
@@ -28,8 +28,8 @@ class Master(CommonBaseMixin, Base):
         nullable=False,
     )
 
-    master_services: Mapped[list["MasterService"]] = relationship(
-        "MasterService",
-        back_populates="master",
-        cascade="all, delete-orphan",
+    master_services: Mapped[list['MasterService']] = relationship(
+        'MasterService',
+        back_populates='master',
+        cascade='all, delete-orphan',
     )

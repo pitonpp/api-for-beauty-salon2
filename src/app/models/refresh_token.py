@@ -22,20 +22,27 @@ class RefreshToken(CommonBaseMixin, Base):
         unique=True,
         index=True,
         nullable=False,
-        comment="Уникальный идентификатор токена",
+        comment='Уникальный идентификатор токена',
     )
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("user.id"), index=True, comment="ID пользователя",
+        Integer,
+        ForeignKey('user.id'),
+        index=True,
+        comment='ID пользователя',
     )
     token_hash: Mapped[str] = mapped_column(
-        String, unique=True, nullable=True, comment="Хэш токена",
+        String,
+        unique=True,
+        nullable=True,
+        comment='Хэш токена',
     )
     expires_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), comment="Время истечения токена",
+        DateTime(timezone=True),
+        comment='Время истечения токена',
     )
     revoked: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
-        server_default="false",
-        comment="Отозван ли токен",
+        server_default='false',
+        comment='Отозван ли токен',
     )

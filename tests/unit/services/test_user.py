@@ -19,7 +19,9 @@ class TestValidateAdminSelfUpdate:
         assert exc.value.status_code == 403
 
     def test_self_update_with_active_true_is_ok(
-        self, user_service_, admin_user,
+        self,
+        user_service_,
+        admin_user,
     ):
         service = user_service_
         request = UserUpdateAdmin(is_active=True)
@@ -27,7 +29,9 @@ class TestValidateAdminSelfUpdate:
         service.validate_admin_self_update(admin_user, admin_user, request)
 
     def test_self_update_with_is_active_none_is_ok(
-        self, user_service_, admin_user,
+        self,
+        user_service_,
+        admin_user,
     ):
         service = user_service_
         request = UserUpdateAdmin(is_active=None)
@@ -123,7 +127,8 @@ class TestUpdateUser:
                 AsyncMock(return_value=admin_user),
             ),
             patch.object(
-                service, 'validate_admin_self_update',
+                service,
+                'validate_admin_self_update',
             ) as mock_validate,
             patch.object(
                 service.crud,
@@ -159,7 +164,8 @@ class TestUpdateUser:
                 AsyncMock(return_value=other_user),
             ),
             patch.object(
-                service, 'validate_admin_self_update',
+                service,
+                'validate_admin_self_update',
             ) as mock_validate,
             patch.object(service.crud, 'update', AsyncMock()),
         ):

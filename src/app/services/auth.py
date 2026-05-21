@@ -55,7 +55,7 @@ class AuthService(BaseService[User, CRUDUser]):
 
         if not user:
             logger.warning(
-                "Пользователь user_id={} из токена не найден в БД",
+                'Пользователь user_id={} из токена не найден в БД',
                 token_data.user_id,
             )
             raise HTTPException(
@@ -65,7 +65,8 @@ class AuthService(BaseService[User, CRUDUser]):
 
         if not user.is_active:
             logger.warning(
-                "Пользователь user_id={} заблокирован", token_data.user_id,
+                'Пользователь user_id={} заблокирован',
+                token_data.user_id,
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -84,7 +85,7 @@ class AuthService(BaseService[User, CRUDUser]):
         if token:
             return token
 
-        logger.warning("Токен не найден: path={}", request.url.path)
+        logger.warning('Токен не найден: path={}', request.url.path)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=MISSING_TOKEN,
@@ -103,7 +104,7 @@ class AuthService(BaseService[User, CRUDUser]):
 
             if user.role not in allowed_roles:
                 logger.warning(
-                    "Пользователь user_id={} role={} не имеет прав",
+                    'Пользователь user_id={} role={} не имеет прав',
                     user.id,
                     user.role,
                 )
@@ -135,7 +136,9 @@ class AuthService(BaseService[User, CRUDUser]):
         )
 
     async def get_by_username(
-        self, session: AsyncSession, username: str,
+        self,
+        session: AsyncSession,
+        username: str,
     ) -> User | None:
         """Возвращает пользователя по username."""
         return await self.crud.get_one_by(session, username=username)
@@ -151,7 +154,7 @@ class AuthService(BaseService[User, CRUDUser]):
         user = await self.get_by_username(session, username)
 
         if not user or not verify_password(password, user.password):
-            logger.warning("Неудачная попытка входа: username={}", username)
+            logger.warning('Неудачная попытка входа: username={}', username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=INVALID_CREDENTIALS,
@@ -159,7 +162,8 @@ class AuthService(BaseService[User, CRUDUser]):
 
         if not user.is_active:
             logger.warning(
-                "Пользователь user_id={} заблокирован, попытка входа", user.id,
+                'Пользователь user_id={} заблокирован, попытка входа',
+                user.id,
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -182,24 +186,29 @@ class AuthService(BaseService[User, CRUDUser]):
             max_age=self.token_service.access_token_expire_minutes * 60,
         )
         logger.info(
-            "Пользователь user_id={} username={} вошел в систему",
+            'Пользователь user_id={} username={} вошел в систему',
             user.id,
             user.username,
         )
         return Token(access_token=access_token)
 
     async def logout(
-        self, response: Response, refresh_token: str, session: AsyncSession,
+        self,
+        response: Response,
+        refresh_token: str,
+        session: AsyncSession,
     ) -> None:
         """Удаляет токены из cookie и отзывает refresh-токен."""
         token_data = await self.token_service.verify_refresh_token(
-            refresh_token, session,
+            refresh_token,
+            session,
         )
         response.delete_cookie(REFRESH_TOKEN_COOKIE)
         response.delete_cookie(ACCESS_TOKEN_COOKIE)
         await self.token_service.revoke_token(token_data, session)
         logger.info(
-            "Пользователь user_id={} вышел из системы", token_data.user_id,
+            'Пользователь user_id={} вышел из системы',
+            token_data.user_id,
         )
 
     def _get_token_from_cookie(
@@ -232,7 +241,10 @@ class AuthService(BaseService[User, CRUDUser]):
         return self._get_token_from_cookie(request, True)
 
     async def refresh(
-        self, session: AsyncSession, request: Request, response: Response,
+        self,
+        session: AsyncSession,
+        request: Request,
+        response: Response,
     ) -> Token:
         """Обновляет пару токенов по refresh-токену из cookie."""
         refresh_token = self.get_refresh_token_from_cookie(request)
@@ -251,7 +263,7 @@ class AuthService(BaseService[User, CRUDUser]):
             httponly=True,
             max_age=self.token_service.access_token_expire_minutes * 60,
         )
-        logger.info("Токены обновлены")
+        logger.info('Токены обновлены')
         return Token(access_token=new_access_token)
 
 

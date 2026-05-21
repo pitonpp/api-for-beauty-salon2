@@ -18,7 +18,9 @@ class TestRoleCheck:
 
         with (
             patch.object(
-                auth_service, 'get_token_from_request', return_value='tok',
+                auth_service,
+                'get_token_from_request',
+                return_value='tok',
             ),
             patch.object(
                 auth_service,
@@ -39,7 +41,9 @@ class TestRoleCheck:
 
         with (
             patch.object(
-                auth_service, 'get_token_from_request', return_value='tok',
+                auth_service,
+                'get_token_from_request',
+                return_value='tok',
             ),
             patch.object(
                 auth_service,
@@ -53,7 +57,9 @@ class TestRoleCheck:
         assert exc.value.status_code == 403
 
     async def test_empty_allowed_roles_denies_all(
-        self, auth_service_, mock_session,
+        self,
+        auth_service_,
+        mock_session,
     ):
         auth_service = auth_service_
         checker = auth_service.role_check()
@@ -63,7 +69,9 @@ class TestRoleCheck:
 
         with (
             patch.object(
-                auth_service, 'get_token_from_request', return_value='tok',
+                auth_service,
+                'get_token_from_request',
+                return_value='tok',
             ),
             patch.object(
                 auth_service,
@@ -100,7 +108,8 @@ class TestRoleCheck:
                 ),
             ):
                 result = await checker(
-                    session=mock_session, request=MagicMock(),
+                    session=mock_session,
+                    request=MagicMock(),
                 )
                 assert result.role == role
 
@@ -175,7 +184,9 @@ class TestLogin:
     """AuthService.login — логика ветвления с моком verify_password."""
 
     async def test_user_not_found_skips_password_check(
-        self, auth_service_, mock_session,
+        self,
+        auth_service_,
+        mock_session,
     ):
         """Short-circuit OR: если user None, verify_password НЕ вызывается."""
         auth_service = auth_service_
