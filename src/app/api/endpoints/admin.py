@@ -231,14 +231,15 @@ async def update_master(
     master_id: int,
     session: SessionDI,
     master_manager: MasterManagerDI,
-    _: AllowAdminDI,
+    user: AllowAdminDI,
     request: MasterAdminUpdate,
 ) -> MasterDB:
     """Обновляет данные мастера."""
     master = await master_manager.update_master(
-        session,
-        master_id,
-        request,
+        session=session,
+        master_id=master_id,
+        request=request,
+        user=user,
     )
     return to_schema(master, MasterDB)
 

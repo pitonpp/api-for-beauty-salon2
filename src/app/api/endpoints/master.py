@@ -46,7 +46,11 @@ async def update_me(
     master_manager: MasterManagerDI,
 ) -> MasterShort:
     """Обновляет профиль текущего мастера."""
-    master = await master_manager.update_master(session, user, request)
+    master = await master_manager.update_master(
+        session=session,
+        user=user,
+        request=request,
+    )
     return to_schema(master, MasterShort)
 
 
@@ -57,7 +61,10 @@ async def get_me(
     master_manager: MasterManagerDI,
 ) -> MasterShort:
     """Возвращает профиль текущего мастера."""
-    master = await master_manager.get_master_by_user_id(session, user)
+    master = await master_manager.get_master_by_user_id(
+        session,
+        user,
+    )
     return to_schema(master, MasterShort)
 
 

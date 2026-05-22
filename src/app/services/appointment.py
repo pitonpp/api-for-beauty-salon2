@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.constants import (
     APPOINTMENT_NOT_FOUND,
     CANNOT_BOOK_PAST,
+    CANNOT_MODIFY_CANCELED_APPOINTMENT,
     CANNOT_MODIFY_OTHERS_APPOINTMENT,
     TIME_SLOT_TAKEN,
 )
@@ -225,6 +226,17 @@ class AppointmentService(BaseService[Appointment, CRUDAppointment]):
     ) -> Appointment:
         """Обновляет статус записи мастером."""
         appointment = await self.get_object_or_404(appointment_id, session)
+
+        if appointment.status == AppointmentStatus.CANCELED:
+            logger.warning(
+                'Запись id={} отменена, статус не может быть изменён',
+                appointment.id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=CANNOT_MODIFY_CANCELED_APPOINTMENT,
+            )
+
         if request.status:
             logger.info(
                 'Статус записи id={} изменён на {}',
