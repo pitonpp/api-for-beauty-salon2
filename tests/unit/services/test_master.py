@@ -15,6 +15,7 @@ class TestGetMasterByUserId:
         from app.services.master import master_manager
 
         mock_master = MagicMock()
+        mock_master.user_id = 3
         mock_master.id = 1
 
         with patch.object(

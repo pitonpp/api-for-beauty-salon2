@@ -1,3 +1,4 @@
+from celery.schedules import crontab
 from kombu import Exchange, Queue
 
 from app.core.config import get_settings
@@ -69,3 +70,10 @@ class CeleryConfig:
     task_default_queue = 'default'
     task_default_exchange = 'default'
     task_default_routing_key = 'default'
+
+    beat_schedule = {
+        'send_appointment_reminder': {
+            'task': 'send_appointment_reminder',
+            'schedule': crontab(hour=5, minute=00),
+        },
+    }

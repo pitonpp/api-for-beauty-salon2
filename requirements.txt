@@ -75,3 +75,4 @@ vine==5.1.0
 wcwidth==0.7.0
 yarl==1.23.0
 ruff==0.15.13
+flower==2.0.1

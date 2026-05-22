@@ -26,7 +26,7 @@ async def create_first_users(session: AsyncSession) -> None:
             'password': settings.first_master_password,
             'first_name': settings.first_master_first_name,
             'last_name': settings.first_master_last_name,
-            'role': UserRole.MASTER,
+            'role': UserRole.USER,
         },
         {
             'phone': settings.first_user_phonenumber,

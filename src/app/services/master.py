@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.constants import ALREADY_A_MASTER, NOT_A_MASTER
+from app.constants import ALREADY_A_MASTER, MISSING_MASTER_ID, NOT_A_MASTER
 from app.crud.master import CRUDMaster, master_crud
 from app.models.master import Master
 from app.models.user import User
@@ -73,16 +73,24 @@ class MasterManager(BaseService[Master, CRUDMaster]):
     async def update_master(
         self,
         session: AsyncSession,
-        user: User,
         request: MasterAdminUpdate | MasterUpdate,
+        user: User,
+        master_id: int | None = None,
     ) -> Master:
         """Обновляет данные мастера (по user_id)."""
-        master = await self.get_master_by_user_id(session, user)
+        if user.role == UserRole.ADMIN:
+            if master_id is None:
+                logger.warning('В запросе отсутствует master_id')
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=MISSING_MASTER_ID,
+                )
+            master = await self.get_object_or_404(master_id, session)
+        else:
+            master = await self.get_master_by_user_id(session, user)
+
         updated = await self.update(session, master.id, request)
-        logger.info(
-            'Мастер master_id={} обновлен',
-            master.id,
-        )
+        logger.info('Мастер master_id={} обновлен', master.id)
         return updated
 
     async def downgrade_role(
@@ -144,6 +152,18 @@ class MasterManager(BaseService[Master, CRUDMaster]):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=NOT_A_MASTER,
             )
+
+        if master.user_id != user.id:
+            logger.warning(
+                'Пользователь username={}, user_id={} не является мастером',
+                user.username,
+                user.id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=NOT_A_MASTER,
+            )
+
         return master
 
 

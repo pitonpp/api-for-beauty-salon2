@@ -42,6 +42,8 @@ CANNOT_MODIFY_OTHERS_APPOINTMENT = 'Нельзя менять/просматри
 OBJECT_NOT_FOUND = 'Объект не найден'
 CONFLICT_SAVING = 'Конфликт данных при сохранении'
 MASTER_ALREADY_HAS_SERVICE = 'У этого мастера уже есть такая услуга'
+MISSING_MASTER_ID = 'Отсутствует id мастера'
+CANNOT_MODIFY_CANCELED_APPOINTMENT = 'Нельзя менять отмененную запись'
 
 DESCRIPTION_PATTERN = r'^[\s\S]{1,500}$'
 FIRST_AND_LAST_NAME_PATTERN = r'^[А-ЯЁ][а-яё]+$'
