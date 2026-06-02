@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.constants import (
     CONFLICT_SAVING,
     OBJECT_NOT_FOUND,
-    SERVICE_ALREADY_ADDED,
     UNIQUE_CONSTRAINTS,
 )
 from app.core.types import (
