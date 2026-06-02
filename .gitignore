@@ -17,6 +17,7 @@ __pycache__/
 
 # Секреты и конфиги
 .env
+.env.render
 config/local.py
 
 # Артефакты сборки
@@ -24,3 +25,4 @@ dist/
 build/
 *.egg-info/
 .ruff_cache
+.env.render

@@ -1,13 +1,7 @@
 from celery.schedules import crontab
-from kombu import Exchange, Queue
+from kombu import Queue
 
 from app.core.config import get_settings
-
-default_exchange = Exchange('default', type='direct')
-email_exchange = Exchange('email', type='direct')
-phone_exchange = Exchange('phone', type='direct')
-high_priority_exchange = Exchange('high', type='direct')
-broadcast_exchange = Exchange('broadcast', type='fanout')
 
 settings = get_settings()
 
@@ -16,6 +10,7 @@ class CeleryConfig:
     """Конфигурация Celery."""
 
     broker_url = settings.broker_url
+    result_backend = settings.celery_backend_result
     task_serializer = 'json'
     result_serializer = 'json'
     accept_content = ['json']
@@ -30,8 +25,6 @@ class CeleryConfig:
     # Настройки для совместимости
     worker_mingle = False
     broker_connection_retry_on_startup = True
-    broker_heartbeat = 0
-    broker_connection_timeout = 30
 
     task_default_retry_delay = 300
     task_max_retries = 3
@@ -39,37 +32,14 @@ class CeleryConfig:
     task_time_limit = 30 * 60
     task_soft_time_limit = 25 * 60
 
-    task_queues = (
-        Queue(
-            'default',
-            default_exchange,
-            routing_key='default',
-        ),
-        Queue(
-            'email',
-            email_exchange,
-            routing_key='email',
-        ),
-        Queue(
-            'phone',
-            phone_exchange,
-            routing_key='phone',
-        ),
-        Queue(
-            'high',
-            high_priority_exchange,
-            routing_key='high',
-        ),
-        Queue(
-            'broadcast',
-            broadcast_exchange,
-            routing_key='broadcast',
-        ),
-    )
+    task_routes = {
+        'send_appointment_reminder': {'queue': 'email'},
+        'send_appointment_notification': {'queue': 'email'},
+        'send_email': {'queue': 'email'},
+    }
+    task_queues = [Queue('default'), Queue('email')]
 
     task_default_queue = 'default'
-    task_default_exchange = 'default'
-    task_default_routing_key = 'default'
 
     beat_schedule = {
         'send_appointment_reminder': {

@@ -4,7 +4,14 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, Numeric
+from sqlalchemy import (
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    Numeric,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonBaseMixin
@@ -52,6 +59,14 @@ class Appointment(CommonBaseMixin, Base):
     master_service: Mapped['MasterService'] = relationship(
         'MasterService',
         back_populates='appointments',
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            'master_service_id',
+            'appointment_time',
+            name='uq_master_service_time',
+        ),
     )
 
     @property
