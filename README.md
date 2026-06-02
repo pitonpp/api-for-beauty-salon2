@@ -153,6 +153,7 @@ uvicorn src.main:app --reload
 | ReDoc | http://localhost:8000/redoc |
 | OpenAPI спецификация | http://localhost:8000/openapi.json |
 | Flower (мониторинг Celery) | http://localhost:4444 |
+| API |  https://api-for-beauty-salon2.onrender.com/docs |
 
 ---
 
