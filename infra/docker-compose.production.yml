@@ -20,21 +20,12 @@ services:
     networks:
       - backend
 
-  rabbitmq:
-    image: rabbitmq:3.13-management
-    env_file:
-      - ./.env
-    environment:
-      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
-      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
-      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_VHOST}"
+  redis:
+    image: redis:8-alpine
     ports:
-    - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-    - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - "${REDIS_PORT}:${REDIS_PORT}"
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmqctl status"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,16 +45,14 @@ services:
     environment:
       PYTHONPATH: /app/src
       POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
-      RABBITMQ_HOST: ${DOCKER_RABBITMQ_HOST}
+      REDIS_HOST: ${DOCKER_REDIS_HOST}
     ports:
       - "${APP_PORT}:${APP_PORT}"
     depends_on:
       db:
         condition: service_healthy
-      rabbitmq:
+      redis:
         condition: service_healthy
-    volumes:
-      - ../src:/app/src
     networks:
       - backend
     restart: unless-stopped
@@ -76,11 +65,11 @@ services:
     environment:
       PYTHONPATH: /app/src
       POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
-      RABBITMQ_HOST: ${DOCKER_RABBITMQ_HOST}
+      REDIS_HOST: ${DOCKER_REDIS_HOST}
     depends_on:
       db:
         condition: service_healthy
-      rabbitmq:
+      redis:
         condition: service_healthy
     networks:
       - backend
@@ -94,11 +83,11 @@ services:
     environment:
       PYTHONPATH: /app/src
       POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
-      RABBITMQ_HOST: ${DOCKER_RABBITMQ_HOST}
+      REDIS_HOST: ${DOCKER_REDIS_HOST}
     depends_on:
       db:
         condition: service_healthy
-      rabbitmq:
+      redis:
         condition: service_healthy
     networks:
       - backend
@@ -108,24 +97,22 @@ services:
     image: ${DOCKERHUB_USERNAME}/api-for-beauty-salon2-flower:latest
     command: >
       sh -c '
-      BROKER_API="${FLOWER_BROKER_API:-http://$$RABBITMQ_USER:$$RABBITMQ_PASS@$$DOCKER_RABBITMQ_HOST:$$RABBITMQ_MANAGEMENT_PORT/api/}" &&
       celery -A celery_app.worker flower
       --port=$$FLOWER_PORT
       $${FLOWER_BASIC_AUTH:+--basic-auth=$$FLOWER_BASIC_AUTH}
-      --broker-api="$$BROKER_API"
       $${FLOWER_URL_PREFIX:+--url-prefix=$$FLOWER_URL_PREFIX}'
     env_file:
       - ./.env
     environment:
       PYTHONPATH: /app/src
       POSTGRES_HOST: ${DOCKER_POSTGRES_HOST}
-      RABBITMQ_HOST: ${DOCKER_RABBITMQ_HOST}
+      REDIS_HOST: ${DOCKER_REDIS_HOST}
     ports:
       - "${FLOWER_PORT}:${FLOWER_PORT}"
     depends_on:
       db:
         condition: service_healthy
-      rabbitmq:
+      redis:
         condition: service_healthy
     networks:
       - backend
@@ -133,7 +120,6 @@ services:
 
 volumes:
   pgdata:
-  rabbitmq_data:
 
 networks:
   backend:

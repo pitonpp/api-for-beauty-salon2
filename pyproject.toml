@@ -20,8 +20,8 @@ dependencies = [
     "python-jose[cryptography]>=3.5.0",
     "passlib[bcrypt]>=1.7.4",
     "loguru>=0.7.0",
-    "aio-pika>=9.6.0",
     "python-multipart>=0.0.22",
+    "redis[hiredis]>=5.0.0",
 ]
 
 [tool.setuptools.packages.find]

@@ -49,17 +49,7 @@ class Settings(BaseSettings):
 
     # Celery
     broker_url: str
-
-    # RabbitMq
-    rabbitmq_host: str
-    rabbitmq_port: int
-    rabbitmq_user: str
-    rabbitmq_pass: str
-    rabbitmq_vhost: str
-    rabbitmq_heartbeat: int
-    rabbitmq_connection_attempts: int
-    rabbitmq_delivery_mode: int
-    # rabbitmq_prefetch_count: int
+    celery_backend_result: str
 
     smtp_host: str
     smtp_port: int

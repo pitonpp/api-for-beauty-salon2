@@ -73,6 +73,7 @@ class AppointmentService(BaseService[Appointment, CRUDAppointment]):
             Appointment.appointment_time + duration > appointment_time,
             Appointment.status == AppointmentStatus.SCHEDULED,
         )
+        stmt = stmt.with_for_update()
         result = await session.execute(stmt)
         existing = result.scalars().first()
 
@@ -133,7 +134,7 @@ class AppointmentService(BaseService[Appointment, CRUDAppointment]):
             master_service_id,
         )
         request_data['price_at_booking'] = master_service.price
-        appointment = await self.crud.create(request_data, session)
+        appointment = await self.create(request_data, session)
         logger.info(
             'Создана запись id={} на {}',
             appointment.id,
