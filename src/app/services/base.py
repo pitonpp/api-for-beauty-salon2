@@ -10,6 +10,7 @@ from app.constants import (
     CONFLICT_SAVING,
     OBJECT_NOT_FOUND,
     SERVICE_ALREADY_ADDED,
+    UNIQUE_CONSTRAINTS,
 )
 from app.core.types import (
     CRUDType,
@@ -61,12 +62,13 @@ class BaseService(Generic[ModelType, CRUDType]):
         """Обрабатывает IntegrityError с понятным сообщением об ошибке."""
         error_msg = str(e.orig).lower()
 
-        if 'uq_service_master' in error_msg:
-            logger.warning('Попытка добавить уже созданную услугу')
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=SERVICE_ALREADY_ADDED,
-            )
+        for constraint_name, error_detail in UNIQUE_CONSTRAINTS.items():
+            if constraint_name in error_msg:
+                logger.warning(error_detail)
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=error_detail,
+                )
 
         for field in cls._get_unique_fields():
             if field in error_msg:

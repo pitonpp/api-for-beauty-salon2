@@ -45,6 +45,11 @@ MASTER_ALREADY_HAS_SERVICE = 'У этого мастера уже есть та�
 MISSING_MASTER_ID = 'Отсутствует id мастера'
 CANNOT_MODIFY_CANCELED_APPOINTMENT = 'Нельзя менять отмененную запись'
 
+UNIQUE_CONSTRAINTS: dict[str, str] = {
+    'uq_service_master': SERVICE_ALREADY_ADDED,
+    'uq_master_service_time': TIME_SLOT_TAKEN,
+}
+
 DESCRIPTION_PATTERN = r'^[\s\S]{1,500}$'
 FIRST_AND_LAST_NAME_PATTERN = r'^[А-ЯЁ][а-яё]+$'
 USERNAME_PATTERN = r'^[A-Za-z][A-Za-z0-9_]+$'

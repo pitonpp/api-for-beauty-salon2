@@ -16,7 +16,6 @@ settings = get_settings()
 
 @celery.task(
     name='send_appointment_notification',
-    queue='email',
     bind=True,
     max_retries=3,
 )
@@ -54,7 +53,6 @@ def send_appointment_notification(self: Task, appointment_id: int) -> dict:
 
 @celery.task(
     name='send_appointment_reminder',
-    queue='email',
     bind=True,
     max_retries=3,
 )
@@ -129,7 +127,6 @@ def send_appointment_reminder(self: Task) -> dict:
 
 @celery.task(
     name='send_email',
-    queue='email',
     bind=True,
     max_retries=3,
 )
